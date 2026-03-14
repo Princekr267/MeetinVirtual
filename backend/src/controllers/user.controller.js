@@ -7,7 +7,7 @@ import { Meeting } from "../models/meeting.model.js"
 const login = async (req, res) => {
     const {username, password} = req.body;
     if(!username || !password){
-        return res.statud(400).json({message: "Please Provide"});
+        return res.status(400).json({message: "Please Provide"});
     }
     try{
         const user = await User.findOne({username});

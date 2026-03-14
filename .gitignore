@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# Editor directories and files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build outputs
+dist/
+build/
+coverage/
+tsc-out/
+
+# OS generated files
+Thumbs.db

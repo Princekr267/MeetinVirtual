@@ -295,6 +295,13 @@ lsof -ti:3000 | xargs kill -9
 - Check system settings for camera/microphone access
 - Try using a different browser (Chrome/Firefox recommended)
 
+## Future Enhancements
+- [ ] AI in chat
+- [ ] Download chat
+- [ ] better meeting code
+- [ ] better UI
+- [ ] white board or notepad
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
