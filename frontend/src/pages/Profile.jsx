@@ -43,36 +43,36 @@ function Profile() {
     return (
         <>
             <Navbar/>
-            <Container maxWidth="sm" sx={{ mt: 8 }}>
-                <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
+            <Container maxWidth="sm" sx={{ mt: { xs: 4, md: 8 }, mb: { xs: 4, md: 8 }, px: { xs: 2, sm: 3 } }}>
+                <Paper elevation={3} sx={{ p: { xs: 3, sm: 4 }, borderRadius: 3, width: '100%', overflow: 'hidden' }}>
                     <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-                        <Avatar onClick={profilePhoto} className='avatar' sx={{ width: 80, height: 80, bgcolor: 'primary.main', fontSize: 36 }}>
+                        <Avatar onClick={profilePhoto} className='avatar' sx={{ width: { xs: 60, sm: 80 }, height: { xs: 60, sm: 80 }, bgcolor: 'primary.main', fontSize: { xs: 28, sm: 36 }, cursor: 'pointer' }}>
                             {profile?.name?.charAt(0).toUpperCase()}
                         </Avatar>
-                        <Typography variant="h5" fontWeight={600}>{profile?.name}</Typography>
+                        <Typography variant="h5" fontWeight={600} textAlign="center">{profile?.name}</Typography>
                     </Box>
 
                     <Divider sx={{ my: 3 }} />
 
-                    <Box display="flex" flexDirection="column" gap={2}>
-                        <Box display="flex" alignItems="center" gap={1.5}>
-                            <PersonIcon color="action" />
-                            <Box>
+                    <Box display="flex" flexDirection="column" gap={2.5}>
+                        <Box display="flex" alignItems="center" gap={2}>
+                            <PersonIcon color="action" sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                            <Box sx={{ minWidth: 0, flex: 1 }}>
                                 <Typography variant="caption" color="text.secondary">Username</Typography>
-                                <Typography variant="body1">{profile?.name}</Typography>
+                                <Typography variant="body1" sx={{ wordBreak: 'break-word' }}>{profile?.name}</Typography>
                             </Box>
                         </Box>
-                        <Box display="flex" alignItems="center" gap={1.5}>
-                            <EmailIcon color="action" />
-                            <Box>
+                        <Box display="flex" alignItems="center" gap={2}>
+                            <EmailIcon color="action" sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                            <Box sx={{ minWidth: 0, flex: 1 }}>
                                 <Typography variant="caption" color="text.secondary">Email</Typography>
-                                <Typography variant="body1">{profile?.username}</Typography>
+                                <Typography variant="body1" sx={{ wordBreak: 'break-word' }}>{profile?.username}</Typography>
                             </Box>
                         </Box>
                     </Box>
 
                     <Box mt={4} display="flex" justifyContent="flex-end">
-                        <Button variant="outlined" color="error" onClick={handleLogout}>
+                        <Button variant="outlined" color="error" onClick={handleLogout} sx={{ width: { xs: '100%', sm: 'auto' } }}>
                             Logout
                         </Button>
                     </Box>

@@ -34,9 +34,10 @@ const Card = styled(MuiCard)(({ theme }) => ({
     width: '450px',
   },
   [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(3),
     margin: 'auto',
-    width: '90vw',
+    width: '100%',
+    boxSizing: 'border-box'
   },
   ...theme.applyStyles('dark', {
     boxShadow:

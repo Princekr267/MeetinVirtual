@@ -11,7 +11,7 @@ function Navbar() {
         <>
             <div className='navbar'>
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    <a href="/"><h2>ConferenceWorld</h2></a>
+                    <a href="/"><h2>MeetInVirtual</h2></a>
                 </div>
                 <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
                     <div style={{display: "flex", alignItems: "center"}}>

@@ -32,13 +32,13 @@ export const sendOtpEmail = async (toEmail, otp) => {
 
     try {
         await transporter.sendMail({
-            from: `"ConferenceWorld" <${process.env.EMAIL_USER}>`,
+            from: `"MeetInVirtual" <${process.env.EMAIL_USER}>`,
             to: toEmail,
             subject: "Your Password Reset OTP",
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto;">
                     <h2 style="color: #0088ff;">Password Reset OTP</h2>
-                    <p>Use the OTP below to reset your ConferenceWorld password.</p>
+                    <p>Use the OTP below to reset your MeetInVirtual password.</p>
                     <div style="
                         font-size: 2.5rem;
                         font-weight: 700;

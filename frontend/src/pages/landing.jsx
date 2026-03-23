@@ -56,7 +56,7 @@ function LandingPage() {
         <div className='landingPageContainer'>
             <nav>
                 <div className="navHeader">
-                    <h2>ConferenceWorld</h2>
+                    <h2>MeetInVirtual</h2>
                 </div>
                 {!token ? (
                     <div className="navList">
@@ -94,7 +94,7 @@ function LandingPage() {
             <div className="landingMainContainer">
                 <div>
                     <h1><span style={{ color: "#ff9839" }}>Connect</span> with your loved ones</h1>
-                    <p>Cover a distance with ConferenceWorld</p>
+                    <p>Cover a distance with MeetInVirtual</p>
 
                     {/* Guest Actions - Only show when not logged in */}
                     {!token && (

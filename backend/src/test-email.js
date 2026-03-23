@@ -60,7 +60,7 @@ transporter.verify((error, success) => {
         transporter.sendMail({
             from: `"Test" <${process.env.EMAIL_USER}>`,
             to: process.env.EMAIL_USER, // Send to yourself
-            subject: "Test Email from ConferenceWorld",
+            subject: "Test Email from MeetInVirtual",
             html: `
                 <h2>✅ Email Configuration Successful!</h2>
                 <p>Your email service is working correctly.</p>

@@ -19,7 +19,8 @@ export const connectToSocket = (server) => {
             methods: ["GET", "POST"],
             allowedHeaders: ["*"],
             credentials: true
-        }
+        },
+        destroyUpgrade: false
     });
 
     io.on("connection", (socket)=>{
