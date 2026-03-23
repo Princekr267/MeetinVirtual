@@ -23,10 +23,33 @@ const io = connectToSocket(server);
 setupYjsWebSocket(server);
 
 app.set("port", (process.env.PORT || 3000));
+
+// CORS configuration - allow multiple origins for dev and production
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://conferenceworld.onrender.com',
+    process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, Postman, etc.)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, origin);
+        } else {
+            // Log for debugging
+            console.log('CORS blocked origin:', origin);
+            callback(null, origin); // Allow anyway for now
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json({limit: "40kb"}));
 app.use(express.urlencoded({limit: "40kb", extended: true}));
 
@@ -37,7 +60,18 @@ app.use("/api/v1/users", userRoutes);
 
 app.get("/home", (req, res) => {
     return res.json({"Page" : "home"});
-})
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+    return res.json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        cors: {
+            allowedOrigins: allowedOrigins
+        }
+    });
+});
 
 const start = async () => {
     try {

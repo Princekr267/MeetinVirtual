@@ -18,6 +18,12 @@ import servers from '../../enviroment';
 
 const API_URL = `${servers}/api/v1/users`;
 
+// Configure axios defaults for this component
+const apiClient = axios.create({
+    baseURL: API_URL,
+    withCredentials: true
+});
+
 function ForgotPassword({ open, handleClose }) {
   const [step, setStep] = React.useState(1); // 1: email, 2: OTP, 3: new password
   const [email, setEmail] = React.useState('');
@@ -61,7 +67,7 @@ function ForgotPassword({ open, handleClose }) {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/forgot-password/send-otp`, { username: email });
+      const res = await apiClient.post('/forgot-password/send-otp', { username: email });
       setSuccess(res.data.message || 'OTP sent to your email.');
       setStep(2);
     } catch (err) {
@@ -84,7 +90,7 @@ function ForgotPassword({ open, handleClose }) {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/forgot-password/verify-otp`, { username: email, otp });
+      const res = await apiClient.post('/forgot-password/verify-otp', { username: email, otp });
       setSuccess(res.data.message || 'OTP verified successfully.');
       setStep(3);
     } catch (err) {
@@ -111,7 +117,7 @@ function ForgotPassword({ open, handleClose }) {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/forgot-password/reset`, { username: email, newPassword });
+      const res = await apiClient.post('/forgot-password/reset', { username: email, newPassword });
       setSuccess(res.data.message || 'Password reset successfully!');
       setTimeout(() => {
         handleDialogClose();

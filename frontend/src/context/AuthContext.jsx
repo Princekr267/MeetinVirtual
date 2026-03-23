@@ -7,8 +7,9 @@ import servers from '../enviroment';
 export const AuthContext = createContext({});
 
 const client = axios.create({
-    baseURL: `${servers}/api/v1/users`
-})
+    baseURL: `${servers}/api/v1/users`,
+    withCredentials: true
+});
 
 export const AuthProvider = ({children}) => {
     const authContext = useContext(AuthContext);

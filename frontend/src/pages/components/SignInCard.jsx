@@ -84,9 +84,23 @@ export default function SignInCard() {
         setFormState(0);
       }
     } catch (err) {
-      let message = err?.response?.data?.message || "An error occurred";
+      console.error('Auth error:', err);
+
+      // Better error messages
+      let message;
+      if (err.code === 'ERR_NETWORK') {
+        message = "Cannot connect to server. Please check if backend is running.";
+      } else if (err.response) {
+        // Server responded with error
+        message = err.response.data?.message || `Server error: ${err.response.status}`;
+      } else if (err.request) {
+        // Request made but no response (CORS or network issue)
+        message = "No response from server. Check console for CORS errors.";
+      } else {
+        message = err.message || "An unexpected error occurred";
+      }
+
       setError(message);
-      console.error(err);
     }
   }
 
