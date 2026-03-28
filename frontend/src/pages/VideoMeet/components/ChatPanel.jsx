@@ -93,7 +93,7 @@ export default function ChatPanel({
                     {messages.length === 0 && (
                         <div className="chat-empty-state">
                             <span>💬</span>
-                            <p>No messages yet.<br />Type <strong>@ai</strong> to ask the AI, or <strong>@ai from chat</strong> to ask with full chat context!</p>
+                            <p>No messages yet.<br />Type <strong>@ai</strong> to ask AI, or <strong>#ai</strong> to ask with full chat context!</p>
                         </div>
                     )}
                     {messages.map((item, index) => {
@@ -180,7 +180,7 @@ export default function ChatPanel({
                             value={message}
                             onChange={e => setMessage(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
-                            placeholder="Message · @ai <question> · @ai from chat <question>"
+                            placeholder="Message · @ai <question> · #ai <question>"
                         />
                     )}
                 </div>

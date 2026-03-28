@@ -184,10 +184,12 @@ export default function VideoMeetComponent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Auto-scroll chat (use scrollTop instead of scrollIntoView to avoid scrolling the whole page)
+    // Auto-scroll chat
     useEffect(() => {
-        const el = messagesEndRef.current?.parentElement;
-        if (el) el.scrollTop = el.scrollHeight;
+        const chatContainer = messagesEndRef.current?.closest('.chatContainer');
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
     }, [messages]);
 
     // ── Local stream management ─────────────────────────────────────────────
@@ -197,10 +199,34 @@ export default function VideoMeetComponent() {
         window.localStream = stream;
         localVideoRef.current.srcObject = stream;
 
-        // Re-offer to all existing peers with the new stream
+        // Replace tracks for all existing peers
+        const videoTrack = stream.getVideoTracks()[0];
+        const audioTrack = stream.getAudioTracks()[0];
+
         for (const id in connections) {
             if (id === socketIdRef.current) continue;
-            connections[id].addStream(stream);
+            
+            const senders = connections[id].getSenders();
+            const videoSender = senders.find(s => s.track?.kind === 'video');
+            const audioSender = senders.find(s => s.track?.kind === 'audio');
+
+            // Replace or add tracks
+            if (videoTrack) {
+                if (videoSender) {
+                    videoSender.replaceTrack(videoTrack).catch(console.error);
+                } else {
+                    connections[id].addTrack(videoTrack, stream);
+                }
+            }
+            if (audioTrack) {
+                if (audioSender) {
+                    audioSender.replaceTrack(audioTrack).catch(console.error);
+                } else {
+                    connections[id].addTrack(audioTrack, stream);
+                }
+            }
+
+            // Renegotiate
             connections[id].createOffer()
                 .then(desc => connections[id].setLocalDescription(desc))
                 .then(() => socketRef.current.emit('signal', id,
@@ -219,13 +245,14 @@ export default function VideoMeetComponent() {
                 window.localStream = blank;
                 localVideoRef.current.srcObject = blank;
 
+                // Replace tracks with blank stream
                 for (const id in connections) {
-                    connections[id].addStream(blank);
-                    connections[id].createOffer()
-                        .then(desc => connections[id].setLocalDescription(desc))
-                        .then(() => socketRef.current.emit('signal', id,
-                            JSON.stringify({ sdp: connections[id].localDescription })))
-                        .catch(console.error);
+                    if (id === socketIdRef.current) continue;
+                    const senders = connections[id].getSenders();
+                    const videoSender = senders.find(s => s.track?.kind === 'video');
+                    if (videoSender && blank.getVideoTracks()[0]) {
+                        videoSender.replaceTrack(blank.getVideoTracks()[0]).catch(console.error);
+                    }
                 }
             };
         });
@@ -260,76 +287,162 @@ export default function VideoMeetComponent() {
 
     // ── Screen share ────────────────────────────────────────────────────────
     const onDisplayStreamReady = (stream) => {
-        try { window.localStream?.getTracks().forEach(t => t.stop()); } catch (_) {}
+        // Store previous camera state to restore later
+        const prevVideoState = videoStateRef.current;
+        const prevAudioState = audioStateRef.current;
+        
+        // Stop current local stream tracks
+        try { 
+            window.localStream?.getTracks().forEach(t => t.stop()); 
+        } catch (_) {}
 
         window.localStream = stream;
         localVideoRef.current.srcObject = stream;
 
-        // Replace tracks for all existing peers
+        // Replace tracks for all existing peers using replaceTrack for seamless switching
+        const videoTrack = stream.getVideoTracks()[0];
+        const audioTrack = stream.getAudioTracks()[0];
+
         for (const id in connections) {
             if (id === socketIdRef.current) continue;
 
-            const videoTrack = stream.getVideoTracks()[0];
-            const audioTrack = stream.getAudioTracks()[0];
-
-            // Get existing senders
             const senders = connections[id].getSenders();
-            const videoSender = senders.find(s => s.track?.kind === 'video');
+            const videoSender = senders.find(s => s.track?.kind === 'video' || (s.track === null && s.replaceTrack));
             const audioSender = senders.find(s => s.track?.kind === 'audio');
 
-            // Replace or add video track
-            if (videoTrack) {
-                if (videoSender) {
-                    videoSender.replaceTrack(videoTrack).catch(console.error);
-                } else {
+            // Replace video track
+            if (videoTrack && videoSender) {
+                videoSender.replaceTrack(videoTrack).catch(console.error);
+            } else if (videoTrack) {
+                // No existing video sender, need to add track and renegotiate
+                try {
                     connections[id].addTrack(videoTrack, stream);
+                } catch (e) {
+                    console.error('Error adding video track:', e);
                 }
             }
 
-            // Replace or add audio track (screen share might have system audio)
-            if (audioTrack) {
-                if (audioSender) {
-                    audioSender.replaceTrack(audioTrack).catch(console.error);
-                } else {
-                    connections[id].addTrack(audioTrack, stream);
-                }
+            // Replace audio track if screen share has audio
+            if (audioTrack && audioSender) {
+                audioSender.replaceTrack(audioTrack).catch(console.error);
             }
 
-            // If we added new tracks (no sender existed), we need to renegotiate
-            if ((!videoSender && videoTrack) || (!audioSender && audioTrack)) {
-                connections[id].createOffer()
-                    .then(desc => connections[id].setLocalDescription(desc))
-                    .then(() => socketRef.current.emit('signal', id,
-                        JSON.stringify({ sdp: connections[id].localDescription })))
-                    .catch(console.error);
-            }
+            // Renegotiate to ensure remote side receives the new stream
+            connections[id].createOffer()
+                .then(desc => connections[id].setLocalDescription(desc))
+                .then(() => socketRef.current.emit('signal', id,
+                    JSON.stringify({ sdp: connections[id].localDescription })))
+                .catch(console.error);
         }
 
         // Notify all users that this user is sharing screen
         socketRef.current.emit('screen-share-started', { roomPath: window.location.href });
 
-        stream.getTracks().forEach(track => {
+        // When screen share track ends (user clicks "Stop sharing" in browser UI)
+        stream.getVideoTracks().forEach(track => {
             track.onended = () => {
                 setScreen(false);
                 socketRef.current.emit('screen-share-stopped', { roomPath: window.location.href });
-                try { localVideoRef.current.srcObject?.getTracks().forEach(t => t.stop()); } catch (_) {}
+                
+                // Stop all screen share tracks
+                try { 
+                    stream.getTracks().forEach(t => t.stop()); 
+                } catch (_) {}
 
                 // Return to previous camera/audio state
-                getUserMedia();
+                restoreCameraAfterScreenShare(prevVideoState, prevAudioState);
             };
         });
     };
 
+    // Restore camera stream after screen sharing ends
+    const restoreCameraAfterScreenShare = (restoreVideo, restoreAudio) => {
+        const needVideo = restoreVideo && videoAvailable;
+        const needAudio = restoreAudio && audioAvailable;
+
+        if (needVideo || needAudio) {
+            navigator.mediaDevices.getUserMedia({
+                video: needVideo,
+                audio: needAudio
+            })
+                .then((stream) => {
+                    try { window.localStream?.getTracks().forEach(t => t.stop()); } catch (_) {}
+                    
+                    window.localStream = stream;
+                    localVideoRef.current.srcObject = stream;
+
+                    const videoTrack = stream.getVideoTracks()[0];
+                    const audioTrack = stream.getAudioTracks()[0];
+
+                    // Replace tracks for all peers
+                    for (const id in connections) {
+                        if (id === socketIdRef.current) continue;
+
+                        const senders = connections[id].getSenders();
+                        const videoSender = senders.find(s => s.track?.kind === 'video' || (s.track === null));
+                        const audioSender = senders.find(s => s.track?.kind === 'audio');
+
+                        if (videoTrack && videoSender) {
+                            videoSender.replaceTrack(videoTrack).catch(console.error);
+                        }
+                        if (audioTrack && audioSender) {
+                            audioSender.replaceTrack(audioTrack).catch(console.error);
+                        }
+
+                        // Renegotiate
+                        connections[id].createOffer()
+                            .then(desc => connections[id].setLocalDescription(desc))
+                            .then(() => socketRef.current.emit('signal', id,
+                                JSON.stringify({ sdp: connections[id].localDescription })))
+                            .catch(console.error);
+                    }
+                })
+                .catch(console.error);
+        } else {
+            // Return to blank stream
+            try { window.localStream?.getTracks().forEach(t => t.stop()); } catch (_) {}
+            const blank = createBlankStream();
+            window.localStream = blank;
+            localVideoRef.current.srcObject = blank;
+
+            // Update peers with blank stream
+            for (const id in connections) {
+                if (id === socketIdRef.current) continue;
+                const senders = connections[id].getSenders();
+                const videoSender = senders.find(s => s.track?.kind === 'video');
+                if (videoSender) {
+                    videoSender.replaceTrack(blank.getVideoTracks()[0]).catch(console.error);
+                }
+            }
+        }
+
+        // Restore states
+        setVideo(restoreVideo);
+        setAudio(restoreAudio);
+    };
+
     const getDisplayMedia = () => {
         if (screen && navigator.mediaDevices.getDisplayMedia) {
-            navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+            navigator.mediaDevices.getDisplayMedia({ 
+                video: {
+                    cursor: 'always',
+                    displaySurface: 'monitor'
+                }, 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true
+                }
+            })
                 .then(onDisplayStreamReady)
-                .catch(console.error);
+                .catch((err) => {
+                    console.error('Screen share error:', err);
+                    setScreen(false);
+                });
         }
     };
 
     useEffect(() => {
-        if (screen !== undefined) getDisplayMedia();
+        if (screen === true) getDisplayMedia();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen]);
 
@@ -414,19 +527,21 @@ export default function VideoMeetComponent() {
         // Send text message
         if (!message.trim()) return;
         socketRef.current.emit('chat-message', message, username);
-        if (message.toLowerCase().startsWith('@ai')) askAI(message);
+        if (message.toLowerCase().startsWith('@ai') || message.toLowerCase().startsWith('#ai')) {
+            askAI(message);
+        }
         setMessage('');
     };
 
     const askAI = async (userMessage) => {
         const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GOOGLE_GEMINI_API_KEY });
 
-        // Detect "@ai from chat <question>" — includes full chat history as context
-        const fromChatMatch = userMessage.match(/@ai\s+from\s+chat\s+(.+)/i);
+        // Detect "#ai <question>" — includes full chat history as context
+        const isContextAware = userMessage.toLowerCase().startsWith('#ai');
         let prompt;
 
-        if (fromChatMatch) {
-            const question = fromChatMatch[1].trim();
+        if (isContextAware) {
+            const question = userMessage.replace(/#ai/i, '').trim();
             const transcript = messages
                 .filter(m => m.type === 'text' && m.sender !== AI_SENDER)
                 .map(m => `[${m.sender}]: ${m.data}`)
@@ -559,6 +674,29 @@ export default function VideoMeetComponent() {
                         }
                     };
 
+                    // Use ontrack instead of deprecated onaddstream for better track handling
+                    connections[peerId].ontrack = (event) => {
+                        const stream = event.streams[0];
+                        if (!stream) return;
+                        
+                        const exists = videoListRef.current.find(v => v.socketId === peerId);
+                        if (exists) {
+                            setVideos(prev => {
+                                const updated = prev.map(v =>
+                                    v.socketId === peerId ? { ...v, stream: stream } : v);
+                                videoListRef.current = updated;
+                                return updated;
+                            });
+                        } else {
+                            setVideos(prev => {
+                                const updated = [...prev, { socketId: peerId, stream: stream }];
+                                videoListRef.current = updated;
+                                return updated;
+                            });
+                        }
+                    };
+
+                    // Also keep onaddstream for backward compatibility
                     connections[peerId].onaddstream = (event) => {
                         const exists = videoListRef.current.find(v => v.socketId === peerId);
                         if (exists) {
@@ -582,7 +720,11 @@ export default function VideoMeetComponent() {
                         window.localStream = blank;
                         return blank;
                     })();
-                    connections[peerId].addStream(localStream);
+                    
+                    // Use addTrack instead of deprecated addStream for better track control
+                    localStream.getTracks().forEach(track => {
+                        connections[peerId].addTrack(track, localStream);
+                    });
 
                     if (peerId !== socketIdRef.current) {
                         setConnectedUsers(prev => {
@@ -597,7 +739,6 @@ export default function VideoMeetComponent() {
                 if (id === socketIdRef.current) {
                     for (const peerId in connections) {
                         if (peerId === socketIdRef.current) continue;
-                        try { connections[peerId].addStream(window.localStream); } catch (_) {}
                         connections[peerId].createOffer()
                             .then(desc => connections[peerId].setLocalDescription(desc))
                             .then(() => socketRef.current.emit('signal', peerId,
