@@ -26,7 +26,7 @@
 - 📹 **Video Control** - Enable/disable camera as needed
 - 🖥️ **Screen Sharing** - Share your screen with meeting participants
 - 💬 **Live Chat** - Text messaging during video calls
-- **AI in the chat** - Ask "@ai" anything during live calls
+- **AI in the chat** - Ask "@ai" questions during live calls, use "#ai" to include full chat context
 - 📝 **Meeting History** - Track all your past meetings
 - 🔗 **Easy Meeting Access** - Join meetings using simple meeting codes
 - 📱 **Responsive Design** - Works seamlessly across devices
