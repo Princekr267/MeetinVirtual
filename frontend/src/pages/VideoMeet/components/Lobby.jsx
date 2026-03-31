@@ -42,6 +42,7 @@ export default function Lobby({
                 <TextField
                     id="lobby-name"
                     label="Your Name"
+                    placeholder="Enter your display name"
                     value={username}
                     variant="outlined"
                     error={usernameError}

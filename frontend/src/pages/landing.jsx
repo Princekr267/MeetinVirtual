@@ -125,7 +125,7 @@ function LandingPage() {
                                         type="text"
                                         value={meetingCode}
                                         onChange={handleCodeChange}
-                                        placeholder="Enter code"
+                                        placeholder="Enter meeting code"
                                         maxLength={MEETING_CODE_LENGTH}
                                         autoFocus
                                     />

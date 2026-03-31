@@ -8,6 +8,8 @@ let roomLocks = {}
 let socketToRoom = {}
 let socketToUsername = {}
 let socketToMediaState = {}
+let roomScreenSharing = {} // Track who is screen sharing in each room
+const whiteboardSnapshots = {}
 
 // Helper function to check if a user is the host of a room
 const isHost = (socketId, roomPath) => {
@@ -112,33 +114,34 @@ export const connectToSocket = (server) => {
             }
         })
 
-        socket.on("notepad-update", (delta, roomPath) => {
-            if(connection[roomPath]) {
-                connection[roomPath].forEach((ele) => {
-                    if (ele !== socket.id) io.to(ele).emit("notepad-update", delta);
-                })
+        // ── BROADCAST STROKE TO ROOM ──────────────────────────────
+        socket.on("whiteboard:draw", ({ roomId, strokeData }) => {
+            if (connection[roomId]) {
+                connection[roomId].forEach((ele) => {
+                    if (ele !== socket.id) io.to(ele).emit("whiteboard:draw", { strokeData });
+                });
             }
         });
 
-        socket.on("notepad-cursor", (cursorData, roomPath) => {
-            if(connection[roomPath]) {
-                connection[roomPath].forEach((ele) => {
-                    if (ele !== socket.id) io.to(ele).emit("notepad-cursor", cursorData, socket.id);
-                })
+        // ── CLEAR BOARD ───────────────────────────────────────────
+        socket.on("whiteboard:clear", ({ roomId }) => {
+            whiteboardSnapshots[roomId] = null;
+            if (connection[roomId]) {
+                connection[roomId].forEach((ele) => {
+                    if (ele !== socket.id) io.to(ele).emit("whiteboard:clear");
+                });
             }
         });
 
-        socket.on("notepad-request-sync", (roomPath) => {
-            if(connection[roomPath]) {
-                const others = connection[roomPath].filter(id => id !== socket.id);
-                if (others.length > 0) {
-                    io.to(others[0]).emit("notepad-request-sync", socket.id);
-                }
-            }
+        // ── NEW USER REQUESTS CURRENT BOARD STATE ─────────────────
+        socket.on("whiteboard:request-sync", ({ roomId }) => {
+            const snapshot = whiteboardSnapshots[roomId] || null;
+            socket.emit("whiteboard:sync", { imageData: snapshot });
         });
 
-        socket.on("notepad-full-sync", (contents, targetSocketId) => {
-            io.to(targetSocketId).emit("notepad-full-sync", contents);
+        // ── SAVE SNAPSHOT PERIODICALLY FROM CLIENTS ───────────────
+        socket.on("whiteboard:save-snapshot", ({ roomId, imageData }) => {
+            whiteboardSnapshots[roomId] = imageData;
         });
 
         socket.on("file-message", (fileData, sender) => {
@@ -181,6 +184,55 @@ export const connectToSocket = (server) => {
                 })
             }
         })
+
+        // ── Screen Sharing Events ────────────────────────────────────
+        socket.on("screen-share-started", ({ roomPath }) => {
+            roomScreenSharing[roomPath] = socket.id;
+            if (connection[roomPath]) {
+                connection[roomPath].forEach((ele) => {
+                    io.to(ele).emit("screen-share-update", {
+                        sharingSocketId: socket.id,
+                        isSharing: true
+                    });
+                });
+            }
+        });
+
+        socket.on("screen-share-stopped", ({ roomPath }) => {
+            if (roomScreenSharing[roomPath] === socket.id) {
+                delete roomScreenSharing[roomPath];
+                if (connection[roomPath]) {
+                    connection[roomPath].forEach((ele) => {
+                        io.to(ele).emit("screen-share-update", {
+                            sharingSocketId: null,
+                            isSharing: false
+                        });
+                    });
+                }
+            }
+        });
+
+        // ── Emoji Reaction Events ────────────────────────────────────
+        socket.on("emoji-reaction", ({ emoji, shouldRotate }) => {
+            console.log('Backend received emoji-reaction:', { emoji, shouldRotate, socketId: socket.id });
+            
+            // Use socketToRoom to find the room quickly
+            const roomPath = socketToRoom[socket.id];
+            console.log('Room path:', roomPath);
+            
+            if (roomPath && connection[roomPath]) {
+                console.log('Broadcasting to room participants:', connection[roomPath]);
+                connection[roomPath].forEach((ele) => {
+                    io.to(ele).emit("emoji-reaction", {
+                        emoji,
+                        shouldRotate: shouldRotate !== undefined ? shouldRotate : true,
+                        senderSocketId: socket.id
+                    });
+                });
+            } else {
+                console.log('No room found for emoji emission, socketToRoom:', socketToRoom);
+            }
+        });
 
         // ── Host Features ─────────────────────────────────────────────────
 
@@ -302,10 +354,22 @@ export const connectToSocket = (server) => {
                             }
                         }
 
+                        // Handle screen sharing disconnection
+                        if (roomScreenSharing[key] === socket.id) {
+                            delete roomScreenSharing[key];
+                            connection[key].forEach((ele) => {
+                                io.to(ele).emit("screen-share-update", {
+                                    sharingSocketId: null,
+                                    isSharing: false
+                                });
+                            });
+                        }
+
                         if(connection[key].length === 0){
                             delete connection[key];
                             delete roomHosts[key];
                             delete roomLocks[key];
+                            delete roomScreenSharing[key];
                         }
                     }
                 }
