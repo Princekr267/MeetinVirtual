@@ -59,6 +59,7 @@ export default function VideoMeetComponent() {
     // Refs to track current media state for socket handlers (avoids stale closures)
     const videoStateRef = useRef(video);
     const audioStateRef = useRef(audio);
+    const screenRef = useRef(false);
 
     // UI panels
     let [showModal,      setModal]      = useState(false);
@@ -195,6 +196,12 @@ export default function VideoMeetComponent() {
         audioStateRef.current = audio;
     }, [video, audio]);
 
+    // NOTE: screenRef is managed inside the screen-share useEffect only.
+
+    useEffect(() => {
+        screenRef.current = screen;
+    }, [screen]);
+
     useEffect(() => {
         getUserProfile()
             .then(data => { if (data?.name) setUsername(data.name); })
@@ -274,6 +281,7 @@ export default function VideoMeetComponent() {
             track.onended = () => {
                 setVideo(false);
                 setAudio(false);
+                setScreen(false);
                 try { localVideoRef.current.srcObject?.getTracks().forEach(t => t.stop()); } catch (_) {}
 
                 const blank = createBlankStream();
@@ -331,7 +339,7 @@ export default function VideoMeetComponent() {
     };
 
     useEffect(() => {
-        if (video !== undefined && audio !== undefined) getUserMedia();
+        if (video !== undefined && audio !== undefined && !screenRef.current) getUserMedia();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [video, audio]);
 
@@ -509,7 +517,7 @@ export default function VideoMeetComponent() {
     };
 
     const getDisplayMedia = () => {
-        if (screen && navigator.mediaDevices.getDisplayMedia) {
+        if (navigator.mediaDevices.getDisplayMedia) {
             navigator.mediaDevices.getDisplayMedia({ 
                 video: {
                     cursor: 'always',
@@ -528,8 +536,27 @@ export default function VideoMeetComponent() {
         }
     };
 
+    // Stop screen share and restore camera
+    const stopScreenShare = () => {
+        // Stop all tracks on the current stream (which is the screen share)
+        try {
+            window.localStream?.getTracks().forEach(t => t.stop());
+        } catch (_) {}
+
+        socketRef.current?.emit('screen-share-stopped', { roomPath: window.location.href });
+
+        // Restore to previous camera/audio state
+        restoreCameraAfterScreenShare(videoStateRef.current, audioStateRef.current);
+    };
+
     useEffect(() => {
-        if (screen === true) getDisplayMedia();
+        if (screen === true) {
+            getDisplayMedia();
+        } else if (screen === false && screenRef.current === true) {
+            // screen just went from true -> false (user clicked button to stop)
+            stopScreenShare();
+        }
+        screenRef.current = screen;
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen]);
 
