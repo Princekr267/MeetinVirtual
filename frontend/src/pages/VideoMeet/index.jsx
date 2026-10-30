@@ -1150,9 +1150,9 @@ export default function VideoMeetComponent() {
                     className="meetUserVideo"
                     autoPlay
                     muted
-                    style={{ display: video === false ? 'none' : undefined }}
+                    style={{ display: (video === false && !screen) ? 'none' : undefined }}
                 />
-                {video === false && (
+                {video === false && !screen && (
                     <div className="localVideoAvatar">
                         <span>{(username || 'Y')[0].toUpperCase()}</span>
                         <small>Cam off</small>

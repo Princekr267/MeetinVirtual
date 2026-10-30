@@ -34,7 +34,7 @@ const VideoTile = React.memo(({ stream, socketId, username, mediaState, isScreen
     }, [stream]);
 
     // Use media state from props if available
-    const videoOn = mediaState?.video !== undefined ? mediaState.video : hasVideo;
+    const videoOn = isScreenSharing || (mediaState?.video !== undefined ? mediaState.video : hasVideo);
     const audioOn = mediaState?.audio !== undefined ? mediaState.audio : true;
 
     return (
