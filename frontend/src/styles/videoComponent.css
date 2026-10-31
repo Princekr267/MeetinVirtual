@@ -452,21 +452,84 @@
 
 /* Mobile/Desktop visibility for control bar */
 .buttonContainers .mobileOnly {
-    display: none;
+    display: none !important;
 }
 
 .buttonContainers .desktopOnly {
-    display: flex;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
     .buttonContainers .mobileOnly {
-        display: flex;
+        display: flex !important;
     }
 
     .buttonContainers .desktopOnly {
         display: none !important;
     }
+}
+
+/* 3-Dots Button with matching modern accent color */
+.moreOptionsBtn {
+    background: rgba(56, 189, 248, 0.16) !important;
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    color: #38bdf8 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.moreOptionsBtn svg {
+    color: #38bdf8 !important;
+}
+
+.moreOptionsBtn:hover,
+.moreOptionsBtn.moreOptionsBtn--open {
+    background: rgba(56, 189, 248, 0.32) !important;
+    border-color: rgba(56, 189, 248, 0.65) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4), 0 0 14px rgba(56, 189, 248, 0.3) !important;
+    transform: scale(1.06);
+}
+
+.moreOptionsBtn:hover svg,
+.moreOptionsBtn.moreOptionsBtn--open svg {
+    color: #ffffff !important;
+}
+
+/* Mobile 3-Dots Menu Reactions Strip */
+.mobileMenuReactionsStrip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px 8px 6px;
+    gap: 4px;
+}
+
+.mobileMenuReactionBtn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    font-size: 1.35rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.mobileMenuReactionBtn:hover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: rgba(56, 189, 248, 0.5);
+    transform: scale(1.15);
+}
+
+.mobileMenuReactionBtn:active {
+    transform: scale(0.92);
 }
 
 .activeIcon {
@@ -511,21 +574,23 @@
 /* Stunning Glass Panels */
 .chatRoom {
     position: absolute;
-    background: rgba(15, 20, 35, 0.85);
+    background: rgba(12, 18, 32, 0.94);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
     height: calc(100% - 40px);
-    width: 360px;
+    width: 380px;
+    max-width: calc(100vw - 30px);
     right: 20px;
     top: 20px;
     border-radius: 24px;
-    padding: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
-    z-index: 40;
+    padding: 20px 22px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    z-index: 45;
     display: flex;
     flex-direction: column;
-    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    box-sizing: border-box;
 }
 
 .usersPanel {
@@ -559,9 +624,15 @@
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
-    padding-bottom: 14px;
+    padding-bottom: 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 14px;
+    margin-bottom: 10px;
+}
+
+.chatHeaderTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .chatHeader h1 {
@@ -575,28 +646,65 @@
     letter-spacing: 0.5px;
 }
 
+.chatMessageBadge {
+    background: rgba(56, 189, 248, 0.18);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+}
+
+.chatHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.chatHeaderBtn {
+    color: rgba(255, 255, 255, 0.7) !important;
+    padding: 6px !important;
+    transition: all 0.2s ease !important;
+}
+.chatHeaderBtn:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+.chatCloseBtn:hover {
+    color: #ff4757 !important;
+    background: rgba(255, 71, 87, 0.15) !important;
+}
+
 .chatContainer {
-    flex-grow: 1;
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
-    margin-bottom: 70px;
-    padding-right: 10px;
+    overflow-x: hidden;
+    padding: 4px 6px 10px 0;
+    margin-bottom: 0;
+    -webkit-overflow-scrolling: touch;
 }
 
 .chatContainer::-webkit-scrollbar {
     width: 6px;
 }
 .chatContainer::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 10px;
 }
 .chatContainer::-webkit-scrollbar-thumb {
-    background: rgba(100,100,100,0.5);
+    background: rgba(255, 255, 255, 0.18);
     border-radius: 10px;
 }
+.chatContainer::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.5);
+}
+
 .chattingDisplay {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .chat-empty-state {
@@ -784,36 +892,102 @@
 
 
 /* Chat Input Area */
+.chattingAreaWrapper {
+    flex-shrink: 0;
+    width: 100%;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chat-quick-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+.chat-quick-chips::-webkit-scrollbar {
+    display: none;
+}
+.chat-quick-chip {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 3px 10px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.chat-quick-chip:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+    transform: translateY(-1px);
+}
+
 .chattingArea {
-    position: absolute;
-    bottom: 25px;
-    left: 25px;
-    right: 25px;
+    position: relative;
+    width: 100%;
     display: flex;
     align-items: center;
     gap: 8px;
     background: rgba(15, 20, 35, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 8px 10px;
-    border-radius: 30px;
-    border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
+    padding: 6px 8px;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    transition: all 0.2s ease;
     box-sizing: border-box;
 }
 
 .chattingArea:hover {
-    border-color: rgba(255,255,255,0.25);
+    border-color: rgba(255, 255, 255, 0.25);
     background: rgba(20, 25, 40, 0.9);
-    box-shadow: 0 10px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .chattingArea:focus-within {
-    border-color: rgba(0, 136, 255, 0.5);
-    background: rgba(20, 25, 40, 0.95);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 0 2px rgba(0, 136, 255, 0.2);
+    border-color: rgba(56, 189, 248, 0.5);
+    background: rgba(18, 25, 45, 0.95);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.chattingArea button {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: white;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    padding: 0;
+}
+.chattingArea button:hover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: rgba(56, 189, 248, 0.5);
+    color: #38bdf8;
+    transform: scale(1.05);
+}
+.chattingArea button:active {
+    transform: scale(0.95);
 }
 
 .chat-input-wrapper {
@@ -829,12 +1003,17 @@
     background: transparent;
     border: none;
     color: white;
-    padding: 10px 8px;
+    padding: 8px 6px;
     outline: none;
     font-size: 0.95rem;
     font-family: inherit;
     letter-spacing: 0.2px;
     box-sizing: border-box;
+}
+
+.chattingArea input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.88rem;
 }
 
 .file-preview-chip {
@@ -1194,13 +1373,16 @@
 /* Lobby Perfection Desktop (Split Layout) */
 .lobbyContainer {
     display: flex;
-    flex-direction: row; /* Desktop split */
     align-items: center;
     justify-content: center;
     position: fixed;
     inset: 0;
     background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') center/cover;
     color: white;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px;
+    box-sizing: border-box;
 }
 
 /* Overlay for lobby background */
@@ -1208,102 +1390,235 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(10, 16, 31, 0.9) 0%, rgba(10, 16, 31, 0.7) 100%);
-    backdrop-filter: blur(8px);
+    background: linear-gradient(135deg, rgba(10, 16, 31, 0.92) 0%, rgba(10, 16, 31, 0.75) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     z-index: 1;
 }
 
-.lobbyForm {
-    background: rgba(15, 20, 35, 0.65);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    padding: 3.5rem 3rem;
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 1.8rem;
-    width: 400px;
+.lobbyContent {
+    position: relative;
     z-index: 2;
-    margin-right: 50px;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+    gap: 45px;
+    width: 100%;
+    max-width: 1100px;
     animation: slideUpLobby 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes slideUpLobby {
-    from { opacity: 0; transform: translateY(40px); }
+    from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.lobbyForm h2 {
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-    font-size: 2rem;
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-align: center;
-}
-
-.lobby-media-controls {
+.lobbyPreviewCard {
+    position: relative;
     display: flex;
-    gap: 15px;
-    justify-content: center;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.lobby-media-controls .MuiIconButton-root {
-    width: 50px;
-    height: 50px;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
 }
 
 .lobbyPreview {
-    z-index: 2;
     border-radius: 24px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(255,255,255,0.1);
-    width: 600px;
-    max-width: 50vw;
-    border: none;
-    animation: fadeScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    width: 580px;
+    max-width: 48vw;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
     background: #000;
+    transition: all 0.3s ease;
 }
 
 .lobbyVideoOff {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 450px;
-    background: radial-gradient(circle, rgba(30,40,65,1) 0%, rgba(10,15,30,1) 100%);
+    background: radial-gradient(circle, rgba(30, 40, 65, 1) 0%, rgba(10, 15, 30, 1) 100%);
 }
 
-@keyframes fadeScale {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+.lobby-media-controls {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    padding: 8px 16px;
+    background: rgba(15, 20, 35, 0.75);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-/* Responsive Masterpiece */
-@media screen and (max-width: 992px) {
+.lobby-media-controls .MuiIconButton-root {
+    width: 48px;
+    height: 48px;
+    color: rgba(255, 255, 255, 0.85);
+    transition: all 0.2s ease;
+}
+
+.lobby-media-controls .MuiIconButton-root:hover {
+    transform: scale(1.08);
+}
+
+.lobbyForm {
+    background: rgba(15, 20, 35, 0.7);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    padding: 2.8rem 2.4rem;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 380px;
+    box-sizing: border-box;
+}
+
+.lobbyTitleGroup {
+    text-align: center;
+}
+
+.lobbyForm h2.lobbySubTitle {
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    font-size: 1.85rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.lobbyDescription {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.lobbyActionButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Tablet & Mobile Lobby Optimization (<= 900px) */
+@media screen and (max-width: 900px) {
     .lobbyContainer {
-        flex-direction: column;
-        padding: 20px;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: max(16px, env(safe-area-inset-top, 16px)) 16px max(24px, env(safe-area-inset-bottom, 24px)) 16px !important;
+        height: 100dvh !important;
+        height: 100vh !important;
     }
+
+    .lobbyContent {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 16px !important;
+        width: 100% !important;
+        max-width: 440px !important;
+        margin: auto 0 !important;
+    }
+
+    .lobbyPreviewCard {
+        width: 100% !important;
+        max-width: 440px !important;
+        gap: 10px !important;
+    }
+
+    .lobbyPreview {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 16 / 9 !important;
+        max-height: 28vh !important;
+        object-fit: cover !important;
+        border-radius: 18px !important;
+    }
+
+    .lobbyVideoOff {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 16 / 9 !important;
+        max-height: 28vh !important;
+        border-radius: 18px !important;
+    }
+
+    .lobbyVideoOff .video-avatar-ring {
+        width: 65px !important;
+        height: 65px !important;
+    }
+    .lobbyVideoOff .video-avatar-initial {
+        font-size: 2rem !important;
+    }
+
+    .lobby-media-controls {
+        padding: 6px 14px !important;
+        gap: 12px !important;
+        border-radius: 20px !important;
+    }
+    .lobby-media-controls .MuiIconButton-root {
+        width: 42px !important;
+        height: 42px !important;
+    }
+
     .lobbyForm {
-        margin-right: 0;
-        margin-bottom: 30px;
-        width: 100%;
-        max-width: 450px;
-        padding: 2.5rem 2rem;
+        width: 100% !important;
+        max-width: 440px !important;
+        padding: 18px 20px !important;
+        gap: 14px !important;
+        border-radius: 20px !important;
+        background: rgba(15, 20, 35, 0.75) !important;
+    }
+
+    .lobbyForm h2.lobbySubTitle {
+        font-size: 1.35rem !important;
+    }
+    .lobbyDescription {
+        font-size: 0.82rem !important;
+    }
+
+    .lobbyActionButtons {
+        gap: 10px !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .lobbyContainer {
+        padding: max(12px, env(safe-area-inset-top, 12px)) 12px max(16px, env(safe-area-inset-bottom, 16px)) 12px !important;
+    }
+    .lobbyContent {
+        gap: 12px !important;
     }
     .lobbyPreview {
-        width: 100%;
-        max-width: 600px;
+        max-height: 25vh !important;
+        border-radius: 16px !important;
+    }
+    .lobbyVideoOff {
+        max-height: 25vh !important;
+        border-radius: 16px !important;
+    }
+    .lobbyForm {
+        padding: 16px !important;
+        gap: 12px !important;
+    }
+    .lobbyForm h2.lobbySubTitle {
+        font-size: 1.25rem !important;
     }
 }
 
+/* Mobile responsive styles for Video Call & In-Meeting UI (<= 768px) */
 @media screen and (max-width: 768px) {
   .conferenceView:not(.conferenceView--pinned) {
     display: flex !important;
@@ -1323,66 +1638,119 @@
     width: calc((100vw - 32px) / 2) !important;
     max-height: 25vh !important;
   }
-  .usersPanel {
-    width: calc(100vw - 20px) !important;
-    right: 10px !important;
-    top: 10px !important;
-    height: calc(100% - 20px) !important;
-    padding: 16px !important;
-  }
   .conferenceView video {
     height: 100%;
     width: 100%;
   }
+
   .buttonContainers {
-    width: 90%;
-    padding: 12px 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-    bottom: 20px;
-    border-radius: 30px;
-    gap: 15px;
+    width: auto !important;
+    max-width: 96vw !important;
+    padding: 8px 12px !important;
+    flex-wrap: nowrap !important; /* Strictly no wrapping or bundling on small screens */
+    justify-content: center !important;
+    bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+    border-radius: 36px !important;
+    gap: 8px !important;
   }
   .buttonContainers .MuiIconButton-root {
-      width: 50px;
-      height: 50px;
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      min-height: 44px !important;
   }
   .buttonContainers svg {
-    font-size: 1.6rem;
+    font-size: 1.35rem !important;
   }
+
+  /* Full screen mobile overlays for Chat & Participants */
   .chatRoom, .usersPanel {
-    width: 90vw;
-    right: 5vw;
-    height: calc(100vh - 180px); /* Account for control bar and safe area */
-    max-height: 60vh;
-    top: auto;
-    bottom: 110px;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    padding: 16px 14px !important;
+    padding-top: max(16px, env(safe-area-inset-top, 16px)) !important;
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
+    z-index: 200 !important;
+    box-sizing: border-box !important;
+    background: rgba(10, 15, 30, 0.98) !important;
+    backdrop-filter: blur(30px) !important;
+    -webkit-backdrop-filter: blur(30px) !important;
   }
+
+  .chatHeader {
+    padding-bottom: 12px !important;
+    margin-bottom: 10px !important;
+  }
+  .chatHeader h1 {
+    font-size: 1.2rem !important;
+  }
+  .chatHeaderBtn {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .chatContainer {
+    padding: 4px 4px 10px 0 !important;
+  }
+
+  .chattingDisplay {
+    gap: 10px !important;
+  }
+
+  .msg-box {
+    padding: 10px 14px !important;
+    max-width: 88% !important;
+    font-size: 0.92rem !important;
+    line-height: 1.45 !important;
+  }
+  .msg-box span {
+    font-size: 0.72rem !important;
+    margin-bottom: 4px !important;
+  }
+  .msg-box p {
+    font-size: 0.92rem !important;
+  }
+  .msg-box code {
+    font-size: 0.8rem !important;
+    word-break: break-all !important;
+  }
+
+  .chattingAreaWrapper {
+    padding-top: 8px !important;
+    padding-bottom: max(4px, env(safe-area-inset-bottom, 4px)) !important;
+  }
+
   .chattingArea {
-    left: 5vw;
-    right: 5vw;
-    bottom: max(20px, env(safe-area-inset-bottom, 20px)); /* Account for notch/home indicator */
-    padding: 6px 8px;
-    gap: 6px;
-    max-width: 90vw;
+    padding: 6px 8px !important;
+    gap: 6px !important;
+    border-radius: 26px !important;
   }
   .chattingArea button {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
   }
   .chattingArea button svg {
-    font-size: 0.95rem;
+    font-size: 1.15rem !important;
   }
-  .chattingArea input {
-    padding: 8px 6px;
-    font-size: 0.85rem;
-    max-width: 100%;
+  .chattingArea input[type="text"] {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
+    padding: 8px 6px !important;
   }
-  .chattingArea input::placeholder {
-    font-size: 0.8rem;
+  .chattingArea input[type="text"]::placeholder {
+    font-size: 0.84rem !important;
   }
+
   .meetUserVideo {
       height: 120px;
       bottom: 140px;
@@ -1399,25 +1767,246 @@
   }
 }
 
-/* Extra small mobile devices - additional safety */
-@media screen and (max-width: 480px) {
-  .chatRoom {
-    height: calc(100vh - 200px);
-    max-height: 55vh;
-  }
-  .chattingArea {
-    left: 10px;
-    right: 10px;
-    bottom: max(15px, env(safe-area-inset-bottom, 15px));
-    padding: 5px 6px;
-  }
-  .chattingArea input {
+/* Participants Panel Components */
+.participantCountPill {
     font-size: 0.8rem;
-    padding: 6px 4px;
-  }
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
+.participantsSearchBox {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 7px 12px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.participantsSearchBox:focus-within {
+    border-color: rgba(56, 189, 248, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+}
+.participantsSearchInput {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.88rem;
+    width: 100%;
+    margin-left: 8px;
+}
+.participantsSearchInput::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.participantsSectionHeader {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.8px;
+    padding: 6px 4px 4px 4px;
+    flex-shrink: 0;
+}
+
+.usersList {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 6px;
+    margin-bottom: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.usersList::-webkit-scrollbar {
+    width: 5px;
+}
+.usersList::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+}
+.usersList::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+}
+.usersList::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.5);
+}
+
+.participantsEmptySearch {
+    padding: 24px 10px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.88rem;
+}
+
+.userItem {
+    display: flex;
+    align-items: center;
+    padding: 9px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    flex-shrink: 0;
+    gap: 10px;
+    box-sizing: border-box;
+}
+.userItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(56, 189, 248, 0.25);
+    transform: translateY(-1px);
+}
+
+.screenShareItem {
+    background: rgba(56, 189, 248, 0.08) !important;
+    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+}
+.screenShareItem:hover {
+    background: rgba(56, 189, 248, 0.12) !important;
+    border-color: rgba(56, 189, 248, 0.45) !important;
+}
+.screenShareAvatar {
+    background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+    font-size: 1.1rem !important;
+}
+
+.userAvatar {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.hostBadge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: #ffd700;
+    color: #000;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.userName {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.userNameText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.youBadge {
+    color: var(--accent-primary);
+    font-size: 0.78rem;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.hostLabel {
+    color: #ffd700;
+    font-size: 0.78rem;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.screenBadge {
+    color: #38bdf8;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: rgba(56, 189, 248, 0.15);
+    padding: 1px 5px;
+    border-radius: 4px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    flex-shrink: 0;
+}
+
+.pinnedBadge {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.user-media-status {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.user-media-status .status-icon {
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    display: inline-flex;
+    align-items: center;
+}
+.user-media-status .status-icon.muted {
+    background: rgba(255, 71, 87, 0.15);
+    color: #ff4757;
+}
+.user-media-status .status-icon.video-off {
+    background: rgba(255, 71, 87, 0.15);
+    color: #ff4757;
+}
+.userStatus {
+    font-size: 0.75rem;
+    color: #4ade80;
+}
+
+.userActions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.hostControls {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
 /* ── Host Features ────────────────────────────────────────────────────────── */
 /* ────────────────────────────────────────────────────────────────────────── */
 
@@ -1726,114 +2315,6 @@
 
 .share-prompt-close svg {
     font-size: 1.2rem;
-}
-
-@media screen and (max-width: 600px) {
-    .lobbyContainer {
-        padding: 10px;
-    }
-    .lobbyForm {
-        padding: 2rem 1.5rem;
-    }
-    .lobbyForm h2 {
-        font-size: 1.6rem;
-    }
-    .lobbyPreview {
-        height: 300px;
-    }
-    .lobbyVideoOff {
-        height: 300px;
-    }
-
-    .buttonContainers {
-        width: 95%;
-        padding: 10px 15px;
-        gap: 8px;
-        bottom: 10px;
-    }
-    .buttonContainers .MuiIconButton-root {
-        width: 44px;
-        height: 44px;
-    }
-    .buttonContainers svg {
-        font-size: 1.2rem;
-    }
-
-    .chatRoom, .usersPanel {
-        width: 100vw;
-        height: 100vh;
-        right: 0;
-        bottom: 0;
-        top: 0;
-        border-radius: 0;
-        z-index: 9999;
-    }
-    .chattingArea {
-        bottom: 15px;
-        left: 10px;
-        right: 10px;
-    }
-
-    .meetUserVideo {
-        height: 90px;
-        bottom: 90px;
-        left: 10px;
-        z-index: 100;
-    }
-    .localVideoAvatar {
-        height: 90px;
-        width: 150px;
-        bottom: 90px;
-        left: 10px;
-        z-index: 100;
-    }
-    .localVideoAvatar span {
-        font-size: 1.8rem;
-    }
-
-    .video-card--off {
-        height: 35vh;
-        width: 100%;
-        max-width: 100vw;
-    }
-    .video-avatar-ring {
-        width: 80px;
-        height: 80px;
-    }
-    .video-avatar-initial {
-        font-size: 2.5rem;
-    }
-    .video-avatar-name {
-        font-size: 1.2rem;
-    }
-    .conferenceView video {
-        max-height: 35vh;
-    }
-
-    .share-prompt {
-        left: 10px;
-        right: 10px;
-        transform: none;
-        flex-direction: column;
-        gap: 10px;
-        padding: 14px;
-    }
-
-    .share-prompt-content {
-        width: 100%;
-    }
-
-    .share-prompt-btn {
-        flex: 1;
-    }
-
-    .share-prompt-close {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 28px;
-        height: 28px;
-    }
 }
 
 /* ── Floating Share Button ───────────────────────────────────────────────── */

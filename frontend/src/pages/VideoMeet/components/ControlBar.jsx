@@ -19,6 +19,8 @@ import BrushIcon from '@mui/icons-material/Brush';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EmojiPicker from './EmojiPicker';
 
+const QUICK_MOBILE_REACTIONS = ['👍', '❤️', '😂', '😮', '🎉', '🔥', '👏'];
+
 export default function ControlBar({
     video,
     setVideo,
@@ -132,83 +134,103 @@ export default function ControlBar({
 
     return (
         <div className="buttonContainers">
-            {/* Always visible: Video */}
+            {/* 1. Camera Toggle (Always visible) */}
             <IconButton
                 onClick={handleVideoToggle}
                 className={video ? 'activeIcon' : 'inactiveIcon'}
                 title={video ? 'Turn off camera' : 'Turn on camera'}
+                aria-label={video ? 'Turn off camera' : 'Turn on camera'}
             >
                 {video ? <VideocamIcon /> : <VideocamOffIcon />}
             </IconButton>
 
-            {/* Always visible: End Call */}
-            <IconButton onClick={handleEndCall} className="endCallIcon" title="End call">
+            {/* 2. End Call (Always visible, prominent) */}
+            <IconButton
+                onClick={handleEndCall}
+                className="endCallIcon"
+                title="End call"
+                aria-label="End call"
+            >
                 <CallEndIcon />
             </IconButton>
 
-            {/* Always visible: Mic */}
+            {/* 3. Mic Toggle (Always visible) */}
             <IconButton
                 onClick={handleAudioToggle}
                 className={audio ? 'activeIcon' : 'inactiveIcon'}
                 title={audio ? 'Mute' : 'Unmute'}
+                aria-label={audio ? 'Mute' : 'Unmute'}
             >
                 {audio ? <MicIcon /> : <MicOffIcon />}
             </IconButton>
 
             {/* Desktop only: Screen Share */}
-            <IconButton
-                onClick={handleScreenToggle}
-                className={`desktopOnly ${screen ? 'activeIcon' : 'inactiveIcon'}`}
-                title={screen ? 'Stop sharing' : 'Share screen'}
-                disabled={!screenAvailable}
-            >
-                {screen ? <ScreenShareIcon /> : <StopScreenShareIcon />}
-            </IconButton>
+            <div className="desktopOnly">
+                <IconButton
+                    onClick={handleScreenToggle}
+                    className={screen ? 'activeIcon' : 'inactiveIcon'}
+                    title={screen ? 'Stop sharing' : 'Share screen'}
+                    disabled={!screenAvailable}
+                    aria-label="Screen Share"
+                >
+                    {screen ? <ScreenShareIcon /> : <StopScreenShareIcon />}
+                </IconButton>
+            </div>
 
-            {/* Always visible: Chat */}
+            {/* 4. Chat Toggle (Always visible) */}
             <Badge badgeContent={newMessages} max={99} color="error">
                 <IconButton
                     onClick={handleChatToggle}
                     className={showModal ? 'activeIcon' : 'inactiveIcon'}
                     title="Chat"
+                    aria-label="Chat"
                 >
                     <ChatIcon />
                 </IconButton>
             </Badge>
 
             {/* Desktop only: Participants */}
-            <Badge badgeContent={connectedUsersLength} color="primary" className="desktopOnly">
-                <IconButton
-                    onClick={handleUsersToggle}
-                    className={showUsersPanel ? 'activeIcon' : 'inactiveIcon'}
-                    title="Participants"
-                >
-                    <PeopleIcon />
-                </IconButton>
-            </Badge>
+            <div className="desktopOnly">
+                <Badge badgeContent={connectedUsersLength} color="primary">
+                    <IconButton
+                        onClick={handleUsersToggle}
+                        className={showUsersPanel ? 'activeIcon' : 'inactiveIcon'}
+                        title="Participants"
+                        aria-label="Participants"
+                    >
+                        <PeopleIcon />
+                    </IconButton>
+                </Badge>
+            </div>
 
             {/* Desktop only: Whiteboard */}
-            <IconButton
-                onClick={handleWhiteboardToggle}
-                className={`desktopOnly ${showWhiteboard ? 'activeIcon' : 'inactiveIcon'}`}
-                title="Shared Whiteboard"
-            >
-                <BrushIcon />
-            </IconButton>
+            <div className="desktopOnly">
+                <IconButton
+                    onClick={handleWhiteboardToggle}
+                    className={showWhiteboard ? 'activeIcon' : 'inactiveIcon'}
+                    title="Shared Whiteboard"
+                    aria-label="Shared Whiteboard"
+                >
+                    <BrushIcon />
+                </IconButton>
+            </div>
 
-            {/* Always visible: Emoji Reactions */}
-            <EmojiPicker onEmojiSelect={onEmojiSelect} />
+            {/* Desktop only: Full Emoji Picker in Tray */}
+            <div className="desktopOnly">
+                <EmojiPicker onEmojiSelect={onEmojiSelect} />
+            </div>
 
-            {/* Mobile only: More menu */}
+            {/* Mobile only: 3-Dots More Menu Button */}
             <IconButton
                 onClick={handleMoreClick}
-                className={`mobileOnly ${moreMenuOpen ? 'activeIcon' : 'inactiveIcon'}`}
+                className={`mobileOnly moreOptionsBtn ${moreMenuOpen ? 'moreOptionsBtn--open' : ''}`}
                 title="More options"
+                aria-label="More options"
             >
                 <MoreVertIcon />
             </IconButton>
 
-            {/* More Menu */}
+            {/* Opaque, Clean 3-Dots Menu for Mobile Screen */}
             <Menu
                 anchorEl={moreMenuAnchor}
                 open={moreMenuOpen}
@@ -217,39 +239,86 @@ export default function ControlBar({
                 transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 PaperProps={{
                     sx: {
-                        backgroundColor: 'var(--bg-secondary)',
-                        color: 'var(--text-primary)',
-                        borderRadius: '12px',
-                        minWidth: '200px',
-                        '& .MuiMenuItem-root:hover': {
-                            backgroundColor: 'rgba(255,255,255,0.1)'
+                        backgroundColor: '#0f172a !important',
+                        backgroundImage: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)) !important',
+                        backdropFilter: 'blur(25px) !important',
+                        WebkitBackdropFilter: 'blur(25px) !important',
+                        color: '#f8fafc !important',
+                        borderRadius: '20px !important',
+                        border: '1px solid rgba(255, 255, 255, 0.15) !important',
+                        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(56, 189, 248, 0.15) !important',
+                        minWidth: '235px',
+                        padding: '8px 6px',
+                        marginBottom: '16px !important',
+                        zIndex: 9999,
+                        '& .MuiMenuItem-root': {
+                            borderRadius: '12px',
+                            padding: '10px 14px',
+                            fontSize: '0.94rem',
+                            fontWeight: 500,
+                            color: '#f1f5f9',
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                                backgroundColor: 'rgba(56, 189, 248, 0.16) !important',
+                                color: '#38bdf8 !important',
+                            },
+                            '&.Mui-disabled': {
+                                opacity: 0.45,
+                            }
                         }
                     }
                 }}
             >
+                {/* Quick Emoji Reactions Row inside 3-dots */}
+                <div className="mobileMenuReactionsStrip">
+                    {QUICK_MOBILE_REACTIONS.map((emoji) => (
+                        <button
+                            key={emoji}
+                            type="button"
+                            className="mobileMenuReactionBtn"
+                            onClick={() => {
+                                onEmojiSelect(emoji, emoji !== '👍');
+                                handleMoreClose();
+                            }}
+                            title={`Send ${emoji}`}
+                        >
+                            {emoji}
+                        </button>
+                    ))}
+                </div>
+
+                <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)', my: 0.8 }} />
+
+                {/* Participants Item */}
+                <MenuItem onClick={() => { handleUsersToggle(); handleMoreClose(); }}>
+                    <ListItemIcon sx={{ color: showUsersPanel ? '#38bdf8' : 'rgba(255, 255, 255, 0.75)' }}>
+                        <Badge
+                            badgeContent={connectedUsersLength}
+                            color="primary"
+                            sx={{ '& .MuiBadge-badge': { fontSize: '0.65rem', minWidth: '16px', height: '16px' } }}
+                        >
+                            <PeopleIcon />
+                        </Badge>
+                    </ListItemIcon>
+                    <ListItemText>Participants ({connectedUsersLength})</ListItemText>
+                </MenuItem>
+
+                {/* Screen Share Item */}
                 <MenuItem
                     onClick={() => { handleScreenToggle(); handleMoreClose(); }}
                     disabled={!screenAvailable}
                 >
-                    <ListItemIcon sx={{ color: screen ? 'var(--accent-blue)' : 'var(--text-secondary)' }}>
+                    <ListItemIcon sx={{ color: screen ? '#38bdf8' : 'rgba(255, 255, 255, 0.75)' }}>
                         {screen ? <ScreenShareIcon /> : <StopScreenShareIcon />}
                     </ListItemIcon>
                     <ListItemText>{screen ? 'Stop Sharing' : 'Share Screen'}</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => { handleUsersToggle(); handleMoreClose(); }}>
-                    <ListItemIcon sx={{ color: showUsersPanel ? 'var(--accent-blue)' : 'var(--text-secondary)' }}>
-                        <Badge badgeContent={connectedUsersLength} color="primary" sx={{ '& .MuiBadge-badge': { fontSize: '0.65rem', minWidth: '16px', height: '16px' } }}>
-                            <PeopleIcon />
-                        </Badge>
-                    </ListItemIcon>
-                    <ListItemText>Participants</ListItemText>
-                </MenuItem>
+                <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)', my: 0.8 }} />
 
-                <Divider sx={{ borderColor: 'var(--glass-border)' }} />
-
+                {/* Whiteboard Item */}
                 <MenuItem onClick={() => { handleWhiteboardToggle(); handleMoreClose(); }}>
-                    <ListItemIcon sx={{ color: showWhiteboard ? 'var(--accent-blue)' : 'var(--text-secondary)' }}>
+                    <ListItemIcon sx={{ color: showWhiteboard ? '#38bdf8' : 'rgba(255, 255, 255, 0.75)' }}>
                         <BrushIcon />
                     </ListItemIcon>
                     <ListItemText>Shared Whiteboard</ListItemText>

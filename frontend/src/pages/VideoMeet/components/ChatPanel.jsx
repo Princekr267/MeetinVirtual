@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -20,6 +20,15 @@ export default function ChatPanel({
     messagesEndRef,
     handleChatToggle
 }) {
+    const textInputRef = useRef(null);
+
+    // Auto scroll to latest message when panel opens or messages arrive
+    useEffect(() => {
+        if (showModal) {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages, showModal, messagesEndRef]);
+
     if (!showModal) return null;
 
     const getFileIcon = (type) => {
@@ -64,26 +73,42 @@ export default function ChatPanel({
         .replace(/`(.*?)`/g,       '<code>$1</code>')
         .replace(/\n/g,            '<br/>');
 
+    const handleChipClick = (prefix) => {
+        setMessage(prev => {
+            if (!prev) return `${prefix} `;
+            if (prev.startsWith(prefix)) return prev;
+            return `${prefix} ${prev}`;
+        });
+        textInputRef.current?.focus();
+    };
+
     return (
         <div className="chatRoom">
             <div className="chatHeader">
-                <h1>Chat</h1>
-                <div>
+                <div className="chatHeaderTitle">
+                    <h1>Chat</h1>
+                    {messages.length > 0 && (
+                        <span className="chatMessageBadge">{messages.length}</span>
+                    )}
+                </div>
+                <div className="chatHeaderActions">
                     <IconButton
                         onClick={downloadChat}
-                        title="Download chat"
+                        title="Download chat transcript"
                         size="small"
-                        sx={{ color: 'var(--text-secondary)', '&:hover': { color: 'var(--text-primary)' }, mr: 1 }}
+                        className="chatHeaderBtn"
+                        aria-label="Download chat"
                     >
-                        <DownloadIcon />
+                        <DownloadIcon fontSize="small" />
                     </IconButton>
                     <IconButton
                         onClick={handleChatToggle}
                         title="Close chat"
                         size="small"
-                        sx={{ color: 'var(--text-secondary)', '&:hover': { color: '#ff4757' } }}
+                        className="chatHeaderBtn chatCloseBtn"
+                        aria-label="Close chat"
                     >
-                        <CloseIcon />
+                        <CloseIcon fontSize="small" />
                     </IconButton>
                 </div>
             </div>
@@ -119,6 +144,7 @@ export default function ChatPanel({
                                             className="file-download-btn"
                                             onClick={() => downloadFile(item.data)}
                                             title="Download file"
+                                            aria-label={`Download ${item.data.name}`}
                                         >
                                             <DownloadIcon sx={{ fontSize: '1.2rem' }} />
                                         </button>
@@ -148,43 +174,80 @@ export default function ChatPanel({
                 </div>
             </div>
 
-            <div className="chattingArea">
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileSelect}
-                    style={{ display: 'none' }}
-                />
-                {!selectedFile && (
-                    <button onClick={() => fileInputRef.current?.click()}>
-                        <AttachFileIcon/>
+            <div className="chattingAreaWrapper">
+                <div className="chat-quick-chips">
+                    <button
+                        type="button"
+                        className="chat-quick-chip"
+                        onClick={() => handleChipClick('@ai')}
+                        title="Ask AI Assistant a question"
+                    >
+                        ✨ @ai Ask AI
                     </button>
-                )}
-                <div className="chat-input-wrapper">
-                    {selectedFile ? (
-                        <div className="file-preview-chip">
-                            <span className="file-chip-icon">{getFileIcon(selectedFile.type)}</span>
-                            <span className="file-chip-name">{selectedFile.name}</span>
-                            <span className="file-chip-size">({formatFileSize(selectedFile.size)})</span>
-                            <button 
-                                className="file-chip-clear"
-                                onClick={clearSelectedFile}
-                                title="Remove file"
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    ) : (
-                        <input
-                            type="text"
-                            value={message}
-                            onChange={e => setMessage(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
-                            placeholder="Message · @ai <question> · #ai <question>"
-                        />
-                    )}
+                    <button
+                        type="button"
+                        className="chat-quick-chip"
+                        onClick={() => handleChipClick('#ai')}
+                        title="Ask AI with full meeting context"
+                    >
+                        🧠 #ai Context
+                    </button>
                 </div>
-                <button onClick={sendMessage}><SendIcon sx={{ fontSize: '1.2rem' }} /></button>
+
+                <div className="chattingArea">
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileSelect}
+                        style={{ display: 'none' }}
+                    />
+                    {!selectedFile && (
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            title="Attach file or photo"
+                            aria-label="Attach file"
+                        >
+                            <AttachFileIcon sx={{ fontSize: '1.2rem' }} />
+                        </button>
+                    )}
+                    <div className="chat-input-wrapper">
+                        {selectedFile ? (
+                            <div className="file-preview-chip">
+                                <span className="file-chip-icon">{getFileIcon(selectedFile.type)}</span>
+                                <span className="file-chip-name">{selectedFile.name}</span>
+                                <span className="file-chip-size">({formatFileSize(selectedFile.size)})</span>
+                                <button 
+                                    type="button"
+                                    className="file-chip-clear"
+                                    onClick={clearSelectedFile}
+                                    title="Remove file"
+                                    aria-label="Remove attached file"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ) : (
+                            <input
+                                ref={textInputRef}
+                                type="text"
+                                value={message}
+                                onChange={e => setMessage(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
+                                placeholder="Message · @ai · #ai"
+                                autoComplete="off"
+                            />
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={sendMessage}
+                        title="Send message"
+                        aria-label="Send message"
+                    >
+                        <SendIcon sx={{ fontSize: '1.2rem' }} />
+                    </button>
+                </div>
             </div>
         </div>
     );
