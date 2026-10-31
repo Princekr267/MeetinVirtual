@@ -21,6 +21,8 @@ import ShareIcon from '@mui/icons-material/Share';
 import CheckIcon from '@mui/icons-material/Check';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const SERVER_URL = servers;
 const AI_SENDER  = "🤖 AI Assistant";
@@ -114,6 +116,8 @@ export default function VideoMeetComponent() {
 
     // Pinned participant state
     const [pinnedSocketId, setPinnedSocketId] = useState(null);
+    const [gridPage, setGridPage] = useState(0);
+    const TILES_PER_PAGE = 6;
 
     // Share button state
     const [shareCopied, setShareCopied] = useState(false);
@@ -1113,46 +1117,105 @@ export default function VideoMeetComponent() {
             </div>
 
             {/* ── Video Tiles (Remote cameras, Remote screens, and Local screen) ── */}
-            <div className="conferenceView">
-                {/* Local user's screen share tile (appears as separate tile when sharing) */}
-                {screen && screenStreamRef.current && (
-                    <VideoTile
-                        key="local-screen"
-                        stream={screenStreamRef.current}
-                        socketId="local-screen"
-                        username={`${username || 'You'} (Your Screen)`}
-                        mediaState={{ video: true, audio: true }}
-                        isScreenSharing={true}
-                        isPinned={pinnedSocketId === 'local-screen'}
-                    />
-                )}
-                {videos
-                    .filter(v => {
-                        if (pinnedSocketId) {
-                            return v.socketId === pinnedSocketId;
-                        }
-                        return true;
-                    })
-                    .map((v) => {
-                        const isScreen = v.isScreen || v.socketId.endsWith('-screen');
-                        const baseId = v.peerSocketId || v.socketId.replace('-screen', '');
-                        const baseName = connectedUsers.find(u => u.socketId === baseId)?.name || socketToUsername[baseId] || 'User';
-                        const displayName = isScreen ? `${baseName}'s Screen` : baseName;
-                        const media = isScreen ? { video: true, audio: true } : participantMediaState[baseId];
+            {(() => {
+                const allConferenceTiles = [];
 
-                        return (
+                // 1. Local user's screen share tile
+                if (screen && screenStreamRef.current && (!pinnedSocketId || pinnedSocketId === 'local-screen')) {
+                    allConferenceTiles.push({
+                        key: 'local-screen',
+                        stream: screenStreamRef.current,
+                        socketId: 'local-screen',
+                        username: `${username || 'You'} (Your Screen)`,
+                        mediaState: { video: true, audio: true },
+                        isScreenSharing: true,
+                        isPinned: pinnedSocketId === 'local-screen'
+                    });
+                }
+
+                // 2. Remote peer tiles
+                videos.forEach((v) => {
+                    if (pinnedSocketId && v.socketId !== pinnedSocketId) return;
+
+                    const isScreen = v.isScreen || v.socketId.endsWith('-screen');
+                    const baseId = v.peerSocketId || v.socketId.replace('-screen', '');
+                    const baseName = connectedUsers.find(u => u.socketId === baseId)?.name || socketToUsername[baseId] || 'User';
+                    const displayName = isScreen ? `${baseName}'s Screen` : baseName;
+                    const media = isScreen ? { video: true, audio: true } : participantMediaState[baseId];
+
+                    allConferenceTiles.push({
+                        key: v.socketId,
+                        stream: v.stream,
+                        socketId: v.socketId,
+                        username: displayName,
+                        mediaState: media,
+                        isScreenSharing: isScreen,
+                        isPinned: pinnedSocketId === v.socketId
+                    });
+                });
+
+                const isPinnedMode = Boolean(pinnedSocketId);
+                const totalPages = isPinnedMode ? 1 : Math.max(1, Math.ceil(allConferenceTiles.length / TILES_PER_PAGE));
+                const activePage = Math.min(gridPage, Math.max(0, totalPages - 1));
+
+                const visibleTiles = isPinnedMode
+                    ? allConferenceTiles
+                    : allConferenceTiles.slice(activePage * TILES_PER_PAGE, (activePage + 1) * TILES_PER_PAGE);
+
+                return (
+                    <div
+                        className={`conferenceView ${isPinnedMode ? 'conferenceView--pinned' : ''}`}
+                        data-tiles={isPinnedMode ? 1 : visibleTiles.length}
+                    >
+                        {/* Page navigation when more than 6 tiles exist */}
+                        {totalPages > 1 && !isPinnedMode && (
+                            <div className="gridPaginationBar">
+                                <IconButton
+                                    size="small"
+                                    disabled={activePage === 0}
+                                    onClick={() => setGridPage(p => Math.max(0, p - 1))}
+                                    title="Previous page"
+                                    sx={{
+                                        color: activePage === 0 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.85)',
+                                        p: '4px'
+                                    }}
+                                >
+                                    <ChevronLeftIcon fontSize="small" />
+                                </IconButton>
+                                <span className="gridPageIndicatorText">
+                                    {activePage + 1} / {totalPages}
+                                </span>
+                                <IconButton
+                                    size="small"
+                                    disabled={activePage >= totalPages - 1}
+                                    onClick={() => setGridPage(p => Math.min(totalPages - 1, p + 1))}
+                                    title="Next page"
+                                    sx={{
+                                        color: activePage >= totalPages - 1 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.85)',
+                                        p: '4px'
+                                    }}
+                                >
+                                    <ChevronRightIcon fontSize="small" />
+                                </IconButton>
+                            </div>
+                        )}
+
+                        {visibleTiles.map((tile) => (
                             <VideoTile
-                                key={v.socketId}
-                                stream={v.stream}
-                                socketId={v.socketId}
-                                username={displayName}
-                                mediaState={media}
-                                isScreenSharing={isScreen}
-                                isPinned={pinnedSocketId === v.socketId}
+                                key={tile.key}
+                                stream={tile.stream}
+                                socketId={tile.socketId}
+                                username={tile.username}
+                                mediaState={tile.mediaState}
+                                isScreenSharing={tile.isScreenSharing}
+                                isPinned={tile.isPinned}
+                                onPinToggle={() => handlePinUser(tile.socketId)}
                             />
-                        );
-                    })}
-            </div>
+                        ))}
+                    </div>
+                );
+            })()}
+
             {/* Flash Notification */}
             {notification && (
                 <div className={`flash-notification ${notification.type}`}>

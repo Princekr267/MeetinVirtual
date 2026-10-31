@@ -1,8 +1,18 @@
 import React, { useRef, useState, useEffect } from 'react';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import MicOffIcon from '@mui/icons-material/MicOff';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 
-const VideoTile = React.memo(({ stream, socketId, username, mediaState, isScreenSharing = false, isPinned = false }) => {
+const VideoTile = React.memo(({
+    stream,
+    socketId,
+    username,
+    mediaState,
+    isScreenSharing = false,
+    isPinned = false,
+    onPinToggle
+}) => {
     const videoRef = useRef();
     const initial  = (username || '?')[0].toUpperCase();
 
@@ -47,6 +57,24 @@ const VideoTile = React.memo(({ stream, socketId, username, mediaState, isScreen
                 muted={isScreenSharing && socketId === 'local-screen'}
                 className={videoOn ? '' : 'video-hidden'}
             />
+
+            {/* Quick Pin/Unpin Button on the Tile */}
+            {onPinToggle && (
+                <button
+                    type="button"
+                    className={`tile-pin-button ${isPinned ? 'tile-pin-button--active' : ''}`}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onPinToggle();
+                    }}
+                    title={isPinned ? "Unpin participant (Return to grid)" : "Pin to full screen"}
+                    aria-label={isPinned ? "Unpin" : "Pin"}
+                >
+                    {isPinned ? <PushPinIcon sx={{ fontSize: '1rem' }} /> : <PushPinOutlinedIcon sx={{ fontSize: '1rem' }} />}
+                    {isPinned && <span className="pin-label">Unpin</span>}
+                </button>
+            )}
+
             {!isScreenSharing && !videoOn && (
                 <div className="video-avatar-placeholder">
                     <div className="video-avatar-ring">
@@ -61,7 +89,7 @@ const VideoTile = React.memo(({ stream, socketId, username, mediaState, isScreen
             <div className="video-status-indicators">
                 <span className="video-name">
                     {username}
-                    {isScreenSharing && <span style={{ marginLeft: '8px', color: '#4ade80' }}>📺 Sharing Screen</span>}
+                    {isScreenSharing && <span style={{ marginLeft: '8px', color: '#38bdf8' }}>📺 Screen</span>}
                     {isPinned && <span style={{ marginLeft: '8px', color: '#4ade80' }}>📌 Pinned</span>}
                 </span>
                 <div className="media-status-icons">
