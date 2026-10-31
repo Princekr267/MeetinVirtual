@@ -21,6 +21,8 @@ export default function ParticipantsPanel({
     hostSocketId,
     video,
     audio,
+    screen,
+    screenSharingSocketId,
     handleMuteUser,
     handleVideoOffUser,
     setShowTransferConfirm,
@@ -69,6 +71,50 @@ export default function ParticipantsPanel({
             )}
 
             <div className="usersList">
+                {/* ── Active Screen Share / Presentation Item ── */}
+                {((screen && socketIdRef.current) || (screenSharingSocketId && screenSharingSocketId !== socketIdRef.current)) && (() => {
+                    const isSelfSharing = screen;
+                    const presenterSocketId = isSelfSharing ? socketIdRef.current : screenSharingSocketId;
+                    const presenterUser = connectedUsers.find(u => u.socketId === presenterSocketId);
+                    const presenterName = isSelfSharing ? "You" : (presenterUser?.name || "Participant");
+                    const screenTileId = isSelfSharing ? "local-screen" : `${presenterSocketId}-screen`;
+                    const isScreenPinned = pinnedSocketId === screenTileId;
+
+                    return (
+                        <div className="userItem screenShareItem" style={{
+                            background: 'rgba(56, 189, 248, 0.12)',
+                            border: '1px solid rgba(56, 189, 248, 0.35)',
+                            borderRadius: '12px',
+                            marginBottom: '10px'
+                        }}>
+                            <div className="userAvatar" style={{ background: 'linear-gradient(135deg, #0284c7, #0369a1)', fontSize: '1.2rem' }}>
+                                🖥️
+                            </div>
+                            <div className="userInfo">
+                                <span className="userName" style={{ color: '#e0f2fe', fontWeight: 600 }}>
+                                    {presenterName}'s Screen
+                                    <span style={{ fontSize: '0.75rem', color: '#38bdf8', marginLeft: '6px' }}>(Presentation)</span>
+                                </span>
+                                <div className="user-media-status">
+                                    <span className="userStatus" style={{ color: '#38bdf8' }}>● Screen sharing</span>
+                                </div>
+                            </div>
+                            <IconButton
+                                size="small"
+                                onClick={() => handlePinUser(screenTileId)}
+                                title={isScreenPinned ? "Unpin screen" : "Pin screen"}
+                                sx={{
+                                    color: isScreenPinned ? '#4ade80' : 'rgba(255, 255, 255, 0.6)',
+                                    '&:hover': { color: '#4ade80' },
+                                    mr: 1
+                                }}
+                            >
+                                {isScreenPinned ? <PushPinIcon sx={{ fontSize: '1rem' }} /> : <PushPinOutlinedIcon sx={{ fontSize: '1rem' }} />}
+                            </IconButton>
+                        </div>
+                    );
+                })()}
+
                 {connectedUsers.map((user) => {
                     const userMediaState = participantMediaState[user.socketId];
                     const isCurrentUser = user.socketId === socketIdRef.current;
@@ -98,6 +144,19 @@ export default function ParticipantsPanel({
                                     )}
                                     {isPinned && (
                                         <span style={{ marginLeft: '8px', color: '#4ade80' }}>📌</span>
+                                    )}
+                                    {((isCurrentUser && screen) || (!isCurrentUser && screenSharingSocketId === user.socketId)) && (
+                                        <span style={{
+                                            marginLeft: '6px',
+                                            color: '#38bdf8',
+                                            fontSize: '0.75rem',
+                                            background: 'rgba(56, 189, 248, 0.15)',
+                                            padding: '2px 6px',
+                                            borderRadius: '4px',
+                                            border: '1px solid rgba(56, 189, 248, 0.3)'
+                                        }}>
+                                            🖥️ Sharing
+                                        </span>
                                     )}
                                 </span>
                                 <div className="user-media-status">

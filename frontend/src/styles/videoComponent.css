@@ -131,7 +131,10 @@
 .video-card--screen-share {
     flex: 1 1 100% !important;
     max-width: 95vw !important;
-    max-height: 85vh !important;
+    max-height: 80vh !important;
+}
+.video-card--screen-share video {
+    object-fit: contain !important;
 }
 
 /* Pinned participant - make the video card full screen (same as screen sharing) */

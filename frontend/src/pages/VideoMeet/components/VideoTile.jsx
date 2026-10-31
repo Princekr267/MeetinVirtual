@@ -43,9 +43,11 @@ const VideoTile = React.memo(({ stream, socketId, username, mediaState, isScreen
                 data-socket={socketId}
                 ref={videoRef}
                 autoPlay
+                playsInline
+                muted={isScreenSharing && socketId === 'local-screen'}
                 className={videoOn ? '' : 'video-hidden'}
             />
-            {!videoOn && (
+            {!isScreenSharing && !videoOn && (
                 <div className="video-avatar-placeholder">
                     <div className="video-avatar-ring">
                         <span className="video-avatar-initial">{initial}</span>
@@ -63,12 +65,12 @@ const VideoTile = React.memo(({ stream, socketId, username, mediaState, isScreen
                     {isPinned && <span style={{ marginLeft: '8px', color: '#4ade80' }}>📌 Pinned</span>}
                 </span>
                 <div className="media-status-icons">
-                    {!audioOn && (
+                    {!isScreenSharing && !audioOn && (
                         <span className="status-icon muted" title="Microphone muted">
                             <MicOffIcon sx={{ fontSize: '1rem' }} />
                         </span>
                     )}
-                    {!videoOn && (
+                    {!isScreenSharing && !videoOn && (
                         <span className="status-icon video-off" title="Camera off">
                             <VideocamOffIcon sx={{ fontSize: '1rem' }} />
                         </span>

@@ -72,6 +72,16 @@ export const connectToSocket = (server) => {
             socket.emit("all-users-names", roomUsernames);
             socket.emit("all-users-media-states", roomMediaStates);
 
+            // Notify joining user if someone is currently sharing screen
+            if (roomScreenSharing[path]) {
+                const currentSharing = roomScreenSharing[path];
+                socket.emit("screen-share-update", {
+                    sharingSocketId: currentSharing.socketId || currentSharing,
+                    streamId: currentSharing.streamId || null,
+                    isSharing: true
+                });
+            }
+
             for(let a=0; a<connection[path].length; a++){
                 io.to(connection[path][a]).emit("user-joined", socket.id, connection[path]);
             }
@@ -186,12 +196,13 @@ export const connectToSocket = (server) => {
         })
 
         // ── Screen Sharing Events ────────────────────────────────────
-        socket.on("screen-share-started", ({ roomPath }) => {
-            roomScreenSharing[roomPath] = socket.id;
+        socket.on("screen-share-started", ({ roomPath, streamId }) => {
+            roomScreenSharing[roomPath] = { socketId: socket.id, streamId };
             if (connection[roomPath]) {
                 connection[roomPath].forEach((ele) => {
                     io.to(ele).emit("screen-share-update", {
                         sharingSocketId: socket.id,
+                        streamId: streamId || null,
                         isSharing: true
                     });
                 });
@@ -199,12 +210,15 @@ export const connectToSocket = (server) => {
         });
 
         socket.on("screen-share-stopped", ({ roomPath }) => {
-            if (roomScreenSharing[roomPath] === socket.id) {
+            const currentSharing = roomScreenSharing[roomPath];
+            const currentId = currentSharing?.socketId || currentSharing;
+            if (currentId === socket.id) {
                 delete roomScreenSharing[roomPath];
                 if (connection[roomPath]) {
                     connection[roomPath].forEach((ele) => {
                         io.to(ele).emit("screen-share-update", {
                             sharingSocketId: null,
+                            streamId: null,
                             isSharing: false
                         });
                     });
@@ -355,11 +369,14 @@ export const connectToSocket = (server) => {
                         }
 
                         // Handle screen sharing disconnection
-                        if (roomScreenSharing[key] === socket.id) {
+                        const currentSharing = roomScreenSharing[key];
+                        const currentId = currentSharing?.socketId || currentSharing;
+                        if (currentId === socket.id) {
                             delete roomScreenSharing[key];
                             connection[key].forEach((ele) => {
                                 io.to(ele).emit("screen-share-update", {
                                     sharingSocketId: null,
+                                    streamId: null,
                                     isSharing: false
                                 });
                             });
