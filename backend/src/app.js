@@ -24,7 +24,7 @@ app.set("port", (process.env.PORT || 3000));
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://conferenceworld.onrender.com',
+    'https://meetinvirtual.onrender.com',
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
