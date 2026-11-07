@@ -21,11 +21,18 @@ export default function ChatPanel({
     handleChatToggle
 }) {
     const textInputRef = useRef(null);
+    const chatContainerRef = useRef(null);
 
-    // Auto scroll to latest message when panel opens or messages arrive
+    // Keep scrolling inside the chat panel without moving the meeting viewport.
     useEffect(() => {
         if (showModal) {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            const container = chatContainerRef.current;
+            if (container) {
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
         }
     }, [messages, showModal, messagesEndRef]);
 
@@ -113,7 +120,7 @@ export default function ChatPanel({
                 </div>
             </div>
 
-            <div className="chatContainer">
+            <div className="chatContainer" ref={chatContainerRef}>
                 <div className="chattingDisplay">
                     {messages.length === 0 && (
                         <div className="chat-empty-state">
