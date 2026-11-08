@@ -1,5 +1,30 @@
+# Dependencies
 node_modules/
-.env
-dist/
 
-backend/src/delete-yjs.bat
+# Environment Variables & Secrets
+.env
+.env.*
+*.env
+!.env.example
+
+# Production & Build Outputs
+dist/
+build/
+
+# Logs & Debugging
+logs/
+*.log
+npm-debug.log*
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+.vscode/
+.idea/
+*.sw?
+
+# Legacy / Deprecated Scripts
+src/yjsServer.js
+src/delete-yjs.bat
+delete-yjs.bat

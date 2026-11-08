@@ -19,16 +19,21 @@
 ## ✨ Features
 
 - 🔐 **Authentication** — Email/password + Google OAuth, OTP-based password reset
-- 🎥 **Video Calling** — Peer-to-peer WebRTC with camera & mic toggles (hardware released when off)
-- 🖥️ **Screen Sharing** — Share screen; camera restores automatically on stop
-- 💬 **Live Chat** — Text messages, file sharing (up to 5 MB), chat history download
-- 🤖 **AI Assistant** — `@ai <question>` for a quick answer, `#ai <question>` to include full chat context (Google Gemini, streaming)
-- 🎨 **Shared Whiteboard** — Fabric.js canvas with pencil, shapes, text, eraser, undo/redo, PNG export; synced in real time
-- 😂 **Emoji Reactions** — Animated floating emojis broadcast to all participants
-- 📌 **Pin Participants** — Focus any remote user's video full-screen
+- 🎥 **Video Calling** — Peer-to-peer WebRTC with independent camera & microphone hardware controls (hardware released immediately when toggled off)
+- 🖥️ **Independent Screen Sharing** — Screen sharing creates its own dedicated presentation tile (`[Name]'s Presentation`). Present your screen with camera ON or OFF, or present while keeping your personal webcam tile active simultaneously
+- 📐 **Adaptive Video Grid & Pagination** — Clean responsive layout displaying up to 6 video tiles per page on desktop/laptop. Top glassmorphic pagination bar (`< Page X / Y >`) allows smooth navigation across large meetings without grid distortion
+- 🎯 **Anti-Cropping Video Framing** — Dynamic aspect ratio preservation with `object-fit: contain` ensures that 4:3 webcams, widescreen 16:9 feeds, and shared screens are fully visible without edges being clipped
+- 📌 **Pin to Spotlight Stage** — 1-click Pin/Unpin on any video tile or presentation stream locks that feed into an exclusive full-screen spotlight stage
+- 💬 **Live Chat** — Elastic chat drawer with real-time text, file sharing (up to 5 MB), auto-scrolling, mobile full-screen overlay (`100dvh`), and chat history download
+- 🤖 **AI Assistant** — Google Gemini AI built into chat: `@ai <question>` for quick answers, `#ai <question>` to include full meeting transcript context, plus one-tap prompt chips
+- 🎨 **Shared Whiteboard** — Collaborative Fabric.js canvas with pencil, shapes, text, eraser, undo/redo, clear canvas, and PNG export; synced in real time
+- 😂 **Emoji Reactions** — Floating animated reactions (`👍 ❤️ 😂 😮 🎉 🔥 👏`) broadcast to all participants
+- 📱 **Mobile-Optimized Experience** —
+  - **Lobby / Preview Screen**: Responsive 16:9 camera preview at top with safe-area spacing and quick mic/cam toggles preventing top/bottom cutoffs
+  - **Elastic Chat**: Full-screen modal on mobile with 16px iOS anti-zoom input and quick AI chips
+  - **Streamlined Control Bar**: Single-row 5-button bottom tray with a highlighted cyan **⋮ More** button opening a dark popover with emoji reactions, screen share, participants, and whiteboard
 - 👑 **Host Controls** — Lock room, mute/video-off participants, kick, transfer host
 - 📜 **Meeting History** — Past meetings with one-click rejoin
-- 📱 **Responsive** — Full desktop + mobile support with a compact mobile control bar
 
 ---
 
@@ -106,19 +111,23 @@ Verify email config: `cd backend && node src/test-email.js`
 
 | Control | Description |
 |---------|-------------|
-| 📹 / 🎤 | Toggle camera / microphone |
-| 🖥️ | Screen share (camera restores on stop) |
-| 💬 | Chat panel — text, files, AI assistant |
-| 👥 | Participants panel + host controls |
-| 🎨 | Shared whiteboard |
-| 😂 | Emoji reactions |
+| 📹 / 🎤 | Toggle camera / microphone independently |
+| 🖥️ | Toggle independent screen share presentation tile |
+| 📌 | Pin / Unpin any participant or presentation to full-screen spotlight |
+| 💬 | Elastic chat panel — real-time messaging, file sharing, AI assistant |
+| 👥 | Participants drawer + host controls (mute, video-off, kick, transfer host) |
+| 🎨 | Real-time shared whiteboard canvas |
+| 😂 | Floating emoji reactions overlay (`👍 ❤️ 😂 😮 🎉 🔥 👏`) |
+| ◀ ▶ | Glassmorphic pagination bar (`< Page X / Y >`) when > 6 participants |
+| ⋮ | Mobile quick-menu: Reactions bar, Screen Share, Whiteboard, Participants |
 | ❌ | Leave meeting |
 
-> On mobile, screen share, participants, and whiteboard are in the **⋮ More** menu.
+> **Mobile Note:** On screens under 600px, the control bar organizes neatly into 5 essential buttons with an accent-styled **⋮ More** button that houses a quick-tap emoji reactions bar, screen sharing, participants drawer, and shared whiteboard.
 
 ### AI Chat
-- `@ai <question>` — direct question to Gemini
-- `#ai <question>` — question with full chat transcript as context
+- `@ai <question>` — direct question to Gemini AI
+- `#ai <question>` — question evaluated with full in-call chat history as context
+- Tap quick-prompt chips (`@ai`, `#ai`) for rapid mobile prompt entry
 
 ### Whiteboard
 Real-time collaborative canvas. Tools: Select, Pencil, Rectangle, Circle, Text, Eraser. Supports undo/redo, clear board, and PNG export. Late joiners receive the current board state automatically.
@@ -197,7 +206,7 @@ MIT License — see [LICENSE](LICENSE).
 
 ⭐ Star the repo if you find it useful!
 
-[![Stars](https://img.shields.io/github/stars/Princekr267/ConferenceWorld?style=social)](https://github.com/Princekr267/ConferenceWorld/stargazers)
+[![Stars](https://img.shields.io/github/stars/Princekr267/MeetinVirtual?style=social)](https://github.com/Princekr267/MeetinVirtual/stargazers)
 
 *Built with ❤️ using MERN · WebRTC · Socket.IO · Fabric.js — March 2026*
 
