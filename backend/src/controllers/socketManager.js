@@ -133,6 +133,16 @@ export const connectToSocket = (server) => {
             }
         });
 
+        // ── BROADCAST FULL STATE UPDATE (Undo, Redo, Draw, Erase, Shapes) ──
+        socket.on("whiteboard:update", ({ roomId, state }) => {
+            whiteboardSnapshots[roomId] = state;
+            if (connection[roomId]) {
+                connection[roomId].forEach((ele) => {
+                    if (ele !== socket.id) io.to(ele).emit("whiteboard:update", { state });
+                });
+            }
+        });
+
         // ── CLEAR BOARD ───────────────────────────────────────────
         socket.on("whiteboard:clear", ({ roomId }) => {
             whiteboardSnapshots[roomId] = null;
@@ -146,12 +156,12 @@ export const connectToSocket = (server) => {
         // ── NEW USER REQUESTS CURRENT BOARD STATE ─────────────────
         socket.on("whiteboard:request-sync", ({ roomId }) => {
             const snapshot = whiteboardSnapshots[roomId] || null;
-            socket.emit("whiteboard:sync", { imageData: snapshot });
+            socket.emit("whiteboard:sync", { state: snapshot, imageData: snapshot });
         });
 
         // ── SAVE SNAPSHOT PERIODICALLY FROM CLIENTS ───────────────
-        socket.on("whiteboard:save-snapshot", ({ roomId, imageData }) => {
-            whiteboardSnapshots[roomId] = imageData;
+        socket.on("whiteboard:save-snapshot", ({ roomId, imageData, state }) => {
+            whiteboardSnapshots[roomId] = state || imageData;
         });
 
         socket.on("file-message", (fileData, sender) => {

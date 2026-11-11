@@ -1,64 +1,204 @@
+/* ── Whiteboard Fullscreen Panel ─────────────────────────────────── */
 .whiteboard-panel {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--bg-primary);
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: #0b1120;
   display: flex;
   flex-direction: column;
   z-index: 1000;
-  animation: slideInWhiteboard 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
+  overscroll-behavior: none;
+  animation: slideInWhiteboard 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes slideInWhiteboard {
-  from { opacity: 0; transform: translateY(20px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-/* Float the header beautifully at the bottom like a modern iOS dock */
-.whiteboard-header {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(30, 41, 59, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 10px 20px;
+/* ── Top Bar (Actions, Title & Close) ─────────────────────────────────── */
+.whiteboard-topbar {
+  position: relative;
+  z-index: 1002;
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1001;
-  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
-  gap: 6px;
-  max-width: 95vw;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  justify-content: space-between;
+  padding: 8px 16px;
+  padding-top: max(8px, env(safe-area-inset-top, 8px));
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
 }
 
-/* Hide scrollbar for Chrome/Safari/Opera */
-.whiteboard-header::-webkit-scrollbar {
-  display: none;
-}
-
-.whiteboard-tools {
+.whiteboard-title-group {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: nowrap; /* Don't wrap on mobile - scroll instead */
-  justify-content: center;
-  min-width: min-content;
 }
 
-.whiteboard-color {
-  width: 32px;
-  height: 32px;
+.whiteboard-app-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  letter-spacing: 0.3px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.whiteboard-app-title span.badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.whiteboard-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.whiteboard-topbar-actions .MuiIconButton-root {
+  padding: 7px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.whiteboard-topbar-actions .MuiIconButton-root:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Canvas Wrapper (Responsive Middle Area) ────────────────────────── */
+.whiteboard-canvas-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0b1120;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  overflow: hidden;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* Fabric.js Canvas Container & Canvas Elements */
+.canvas-container {
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  touch-action: none !important;
+}
+
+.canvas-container canvas,
+.lower-canvas,
+.upper-canvas {
+  touch-action: none !important;
+  -webkit-touch-callout: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  border-radius: 12px;
+}
+
+/* ── Floating Tool Dock (Bottom) ─────────────────────────────────────── */
+.whiteboard-bottom-dock {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1002;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  max-width: 95vw;
+  box-sizing: border-box;
+}
+
+.whiteboard-tools-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.whiteboard-tools-group .MuiIconButton-root {
+  padding: 8px;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.whiteboard-tools-group .MuiIconButton-root.active-tool {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #38bdf8 !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+.whiteboard-tools-group .MuiIconButton-root:hover:not(.active-tool) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Dividers */
+.whiteboard-dock-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.14);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+/* ── Color Swatches & Native Color Picker ───────────────────────────── */
+.whiteboard-color-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.color-swatch:hover {
+  transform: scale(1.2);
+}
+
+.color-swatch.active {
+  border-color: #ffffff;
+  transform: scale(1.15);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.whiteboard-custom-color {
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: none;
   border-radius: 50%;
@@ -67,159 +207,157 @@
   transition: transform 0.2s ease;
 }
 
-.whiteboard-color:hover {
-  transform: scale(1.1);
+.whiteboard-custom-color:hover {
+  transform: scale(1.15);
 }
 
-.whiteboard-color::-webkit-color-swatch-wrapper {
+.whiteboard-custom-color::-webkit-color-swatch-wrapper {
   padding: 0;
 }
 
-.whiteboard-color::-webkit-color-swatch {
-  border: 2px solid rgba(255, 255, 255, 0.2);
+.whiteboard-custom-color::-webkit-color-swatch {
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
 }
 
-.whiteboard-brush-size {
+/* ── Brush Size Controls ─────────────────────────────────────────────── */
+.whiteboard-brush-control {
   display: flex;
   align-items: center;
-  margin: 0 10px;
+  gap: 6px;
+  padding-left: 2px;
 }
 
-.whiteboard-brush-size input[type=range] {
-  width: 80px;
-  accent-color: var(--accent-blue);
+.whiteboard-brush-control input[type=range] {
+  width: 70px;
+  height: 4px;
+  accent-color: #38bdf8;
   cursor: ew-resize;
+  border-radius: 2px;
 }
 
-.whiteboard-divider {
-  width: 1px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.15);
-  margin: 0 4px;
-}
-
-.whiteboard-canvas-wrapper {
-  flex: 1;
-  position: relative;
+.brush-size-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #0f172a; /* Slightly darker shade than canvas for depth */
-  overflow: hidden;
+  width: 18px;
+  height: 18px;
 }
 
-/* FabricJS creates a .canvas-container wrapper we must scale */
-.canvas-container {
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.05);
-  max-width: 95% !important;
-  max-height: 90% !important;
+.brush-size-dot {
+  background-color: #f1f5f9;
+  border-radius: 50%;
+  transition: all 0.15s ease;
 }
 
-.whiteboard-canvas {
-  touch-action: none;
-  border-radius: 8px;
-}
-
-/* ── Mobile Responsive Styles ───────────────────────────────────────── */
-
+/* ── Mobile Responsive Refinements (<= 768px) ────────────────────────── */
 @media screen and (max-width: 768px) {
-  .whiteboard-header {
-    bottom: 10px;
-    left: 5px;
-    right: 5px;
-    transform: none;
-    padding: 8px 12px;
-    border-radius: 16px;
-    max-width: none;
-    width: auto;
-    justify-content: flex-start;
+  .whiteboard-topbar {
+    padding: 6px 10px;
+    padding-top: max(6px, env(safe-area-inset-top, 6px));
   }
 
-  .whiteboard-tools {
-    gap: 6px;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
+  .whiteboard-app-title {
+    font-size: 0.9rem;
   }
 
-  .whiteboard-tools .MuiIconButton-root {
-    padding: 6px;
-    flex-shrink: 0;
+  .whiteboard-app-title span.badge {
+    display: none; /* Hide badge on mobile to save horizontal space */
   }
 
-  .whiteboard-tools .MuiIconButton-root svg {
-    font-size: 1.2rem;
+  .whiteboard-topbar-actions {
+    gap: 2px;
   }
 
-  .whiteboard-color {
-    width: 28px;
-    height: 28px;
-    flex-shrink: 0;
-  }
-
-  .whiteboard-brush-size {
-    margin: 0 4px;
-    flex-shrink: 0;
-  }
-
-  .whiteboard-brush-size input[type=range] {
-    width: 60px;
-  }
-
-  .whiteboard-divider {
-    height: 20px;
-    margin: 0 4px;
-    flex-shrink: 0;
-  }
-
-  .canvas-container {
-    max-width: 100% !important;
-    max-height: 85% !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .whiteboard-header {
-    bottom: 8px;
-    left: 5px;
-    right: 5px;
-    padding: 6px 8px;
-    border-radius: 12px;
-  }
-
-  .whiteboard-tools {
-    gap: 4px;
-  }
-
-  .whiteboard-tools .MuiIconButton-root {
+  .whiteboard-topbar-actions .MuiIconButton-root {
     padding: 5px;
   }
 
-  .whiteboard-tools .MuiIconButton-root svg {
-    font-size: 1rem;
+  .whiteboard-topbar-actions .MuiIconButton-root svg {
+    font-size: 1.15rem;
   }
 
-  .whiteboard-color {
-    width: 26px;
-    height: 26px;
+  /* Bottom Dock on Mobile: clean horizontal touch bar */
+  .whiteboard-bottom-dock {
+    bottom: max(10px, env(safe-area-inset-bottom, 10px));
+    padding: 6px 10px;
+    gap: 6px;
+    border-radius: 20px;
+    max-width: 98vw;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
-  .whiteboard-brush-size {
-    margin: 0 2px;
+  .whiteboard-bottom-dock::-webkit-scrollbar {
+    display: none;
   }
 
-  .whiteboard-brush-size input[type=range] {
+  .whiteboard-tools-group {
+    gap: 2px;
+  }
+
+  .whiteboard-tools-group .MuiIconButton-root {
+    padding: 6px;
+  }
+
+  .whiteboard-tools-group .MuiIconButton-root svg {
+    font-size: 1.15rem;
+  }
+
+  .color-swatch {
+    width: 20px;
+    height: 20px;
+  }
+
+  .whiteboard-custom-color {
+    width: 22px;
+    height: 22px;
+  }
+
+  .whiteboard-brush-control input[type=range] {
     width: 50px;
   }
 
-  .whiteboard-divider {
-    height: 18px;
-    margin: 0 2px;
+  .canvas-container {
+    border-radius: 8px;
   }
 
-  .canvas-container {
-    max-width: 100% !important;
-    max-height: 80% !important;
+  .canvas-container canvas {
+    border-radius: 8px;
+  }
+}
+
+/* ── Ultra Small Screens (<= 420px) ─────────────────────────────────── */
+@media screen and (max-width: 420px) {
+  .whiteboard-topbar {
+    padding: 4px 8px;
+  }
+
+  .whiteboard-app-title {
+    font-size: 0.82rem;
+  }
+
+  .whiteboard-topbar-actions .MuiIconButton-root {
+    padding: 4px;
+  }
+
+  .whiteboard-bottom-dock {
+    padding: 5px 8px;
+    gap: 5px;
+  }
+
+  .whiteboard-tools-group .MuiIconButton-root {
+    padding: 5px;
+  }
+
+  .color-swatch {
+    width: 18px;
+    height: 18px;
+  }
+
+  .whiteboard-brush-control input[type=range] {
+    width: 40px;
   }
 }

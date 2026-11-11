@@ -9,11 +9,23 @@ export default function GoogleAuthCallback() {
     const token = params.get("token");
     if (token) {
       localStorage.setItem("token", token);
-      navigate("/home");
+      navigate("/home", { replace: true });
     } else {
-      navigate("/auth?error=google_failed");
+      navigate("/auth?error=google_failed", { replace: true });
     }
-  }, []);
+  }, [params, navigate]);
 
-  return <p style={{ color: "white", textAlign: "center", marginTop: "40vh" }}>Signing you in...</p>;
+  return (
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#0a0f1e",
+      color: "white",
+      fontSize: "1.1rem"
+    }}>
+      Signing you in...
+    </div>
+  );
 }

@@ -48,6 +48,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
 export default function SignInCard() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode');
+  const urlError = searchParams.get('error');
 
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
@@ -58,8 +59,16 @@ export default function SignInCard() {
   const [open, setOpen] = React.useState(false);
   const [formState, setFormState] = React.useState(mode === 'register' ? 1 : 0); // 0 for sign in, 1 for sign up
   const [message, setMessage] = React.useState('');
-  const [error, setError] = React.useState('');
+  const [error, setError] = React.useState(
+    urlError === 'google_failed' ? 'Google Sign-In failed or was cancelled. Please try again.' : ''
+  );
   const [showPassword, setShowPassword] = React.useState(false);
+
+  React.useEffect(() => {
+    if (urlError === 'google_failed') {
+      setError('Google Sign-In failed or was cancelled. Please try again.');
+    }
+  }, [urlError]);
 
   const {handleRegister, handleLogin} = React.useContext(AuthContext);
   
@@ -295,7 +304,10 @@ export default function SignInCard() {
           fullWidth
           variant="outlined"
           startIcon={<GoogleIcon />}
-          onClick={() => window.location.href = `${servers}/api/v1/users/auth/google`}
+          onClick={() => {
+            const backendBase = servers.replace(/\/+$/, '');
+            window.location.href = `${backendBase}/api/v1/users/auth/google?redirect=${encodeURIComponent(window.location.origin)}`;
+          }}
           sx={{ mt: 1 }}
         >
           Continue with Google

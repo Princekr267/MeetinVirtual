@@ -1051,6 +1051,7 @@ export default function VideoMeetComponent() {
                     roomId={window.location.pathname}
                     onClose={handleWhiteboardToggle}
                     socket={socketRef.current}
+                    isOpen={showWhiteboard}
                 />
             </div>
 

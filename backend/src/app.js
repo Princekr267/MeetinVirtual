@@ -15,6 +15,8 @@ import passport from "./config/passport.js";
 
 
 const app = express();
+app.set("trust proxy", 1); // Trust reverse proxy (Render/Railway/Vercel) for HTTPS protocol detection
+
 const server = createServer(app);
 const io = connectToSocket(server);
 
@@ -25,7 +27,7 @@ const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
     'https://meetinvirtual.onrender.com',
-    process.env.FRONTEND_URL
+    process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/+$/, '') : null
 ].filter(Boolean);
 
 app.use(cors({
